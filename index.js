@@ -19,7 +19,6 @@ var gba = new GameBoyAdvance();
  
 gba.logLevel = gba.LOG_ERROR;
 
-//var prevFrame = "";
 function save( gba, file ) {
 	var data = gba.encodeBase64(gba.mmu.save.view);
 	fs.writeFile( file, data );
@@ -30,7 +29,8 @@ function load( gba, file ) {
 	gba.decodeSaveData( data );
 }
 
-function pngToDataURL( socket , png ) {	
+var prevFrame = "";
+function pngToDataURL( png ) {	
 	png.pack();
 	var chunks = [];
 	png.on('data', function(chunk) {
@@ -39,13 +39,11 @@ function pngToDataURL( socket , png ) {
 	png.on('end', function() {
 		var result = Buffer.concat(chunks);
 		var ans = result.toString('base64');
-		socket.emit("canvasData", ans );
-		/*
+		//socket.emit("canvasData", ans );
 		if ( ans != prevFrame ) {
-			socket.emit("canvasData", ans );
+			io.emit("canvasData", ans );
 			prevFrame = ans;
 		}
-		*/
 	});
 }
  
@@ -60,16 +58,13 @@ gba.loadRomFromFile('roms/' + ROMNAME, function (err, result) {
 	}
 	//gba.loadSavedataFromFile('/path/to/game.sav');
 	gba.runStable();
+	setInterval( function() {
+		pngToDataURL( gba.screenshot() );
+	}, 1000.0/FRAMERATE);
 });
 
 app.get('/', function (req, res) {
 	res.sendFile(__dirname + "/public/index.html");
-});
-
-io.on('connection', (socket) => {
-	setInterval( function() {
-		pngToDataURL( socket , gba.screenshot() );
-	}, 1000.0/FRAMERATE);
 });
 
 http.listen(PORT , function () {
