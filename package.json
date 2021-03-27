@@ -1,0 +1,22 @@
+{
+  "name": "discord-plays-pokemon",
+  "version": "1.0.0",
+  "description": "Discord Plays Pokemon!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mabotkin/discord-plays-pokemon.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mabotkin/discord-plays-pokemon/issues"
+  },
+  "homepage": "https://github.com/mabotkin/discord-plays-pokemon#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
