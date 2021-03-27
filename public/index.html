@@ -1,49 +1,9 @@
 <head>
 	<title>Discord Plays Pokemon!</title>
+	<link rel="icon" href="pokeball.png">
 	<script src="/socket.io/socket.io.js"></script>
-	<script>
-		var socket = io();
-		socket.on( "canvasData" , ( data ) => { 
-			var canvas = document.getElementById('screen');
-			var context = canvas.getContext('2d');
-			var img = new Image();
-			img.onload = function() {
-			  context.drawImage(this, 0, 0, canvas.width, canvas.height);
-			}
-			img.src = "data:image/png;base64," + data;
-		});
-		socket.on( "input" , ( data ) => {
-			ul = document.getElementById( "inputs" );
-			ul.appendChild( makeli( data ) );
-			if ( ul.childNodes.length > 100 ) {
-				ul.removeChild( ul.children[0] );
-			}
-			ul.scrollTop = ul.scrollHeight;
-		});
-		function makeli( data ) {
-			var li = document.createElement("li");
-			var message = "Input: " + data["input"];
-			if ( data["author"] != "" ) {
-				var message = data["author"] + ": " + data["input"];
-			}
-			li.appendChild( document.createTextNode( message ) );
-			return li;
-		}
-	</script>
-	<style>
-		canvas {
-			width: 720px;
-			height: 480px;
-		}
-		#input-div {
-			width: 240px;
-			height: 160px;
-		}
-		#inputs {
-			overflow-y: auto;
-			height: 100%;
-		}
-	</style>
+	<script src="main.js"></script>
+	<link rel="stylesheet" href="main.css">
 </head>
 <body>
 	<center>

@@ -1,4 +1,5 @@
-var app = require('express')();
+var express = require('express');
+var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var fs = require('fs');
@@ -63,9 +64,12 @@ gba.loadRomFromFile('roms/' + ROMNAME, function (err, result) {
 	}, 1000.0/FRAMERATE);
 });
 
+/*
 app.get('/', function (req, res) {
 	res.sendFile(__dirname + "/public/index.html");
 });
+*/
+app.use(express.static('public'))
 
 http.listen(PORT , function () {
 	console.log('Discord Plays Pokemon running on port ' + PORT + '.');
@@ -108,7 +112,7 @@ client.on('message', message => {
 		if ( m.startsWith( "--SAVE" ) ) {
 			var words = m.split( " " );
 			var file = words[1];
-			console.log("saving: " + file );
+			console.log( "saving: " + file );
 			save( gba, SAVE_DIR + file + ".sav" );
 		}
 
@@ -117,6 +121,27 @@ client.on('message', message => {
 			var file = words[1];
 			console.log("loading: " + file );
 			load( gba, SAVE_DIR + file + ".sav" );
+		}
+
+		if ( m.startsWith( "--HELP" ) ) {
+			//const attachment = new Discord.MessageAttachment('public/pokeball.png', 'pokeball');
+			var embed = new Discord.MessageEmbed()
+				.attachFiles(attachment)
+				.setColor('#ee1515')
+				.setTitle('Discord Plays Pokemon!')
+				.setURL('https://github.com/mabotkin/discord-plays-pokemon')
+				//.setAuthor('Alex, Anoop, and David', 'attachment://pokeball', 'https://github.com/mabotkin/discord-plays-pokemon')
+				.setDescription('Discord Plays Pokemon allows for users in a Discord channel to send inputs to a GBA emulator, and the output is rendered on a web server.')
+				//.setThumbnail('attachment://pokeball')
+				.addFields(
+					{ name: 'GBA Inputs', value: Object.keys( legal_buttons ).join( "\n" ) , inline: true },
+					{ name: 'Commands', value: '--SAVE\n--LOAD\n--HELP', inline: true },
+				)
+				//.setImage('attachment://pokeball')
+				.setTimestamp()
+				.setFooter('Made by Alex, Anoop, and David.')//, 'attachment://pokeball');
+
+			message.channel.send( embed );
 		}
 		//console.log( message.author.username + ": " + message.content );
 	}

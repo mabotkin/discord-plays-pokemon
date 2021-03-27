@@ -1,0 +1,12 @@
+canvas {
+	width: 720px;
+	height: 480px;
+}
+#input-div {
+	width: 240px;
+	height: 160px;
+}
+#inputs {
+	overflow-y: auto;
+	height: 100%;
+}
