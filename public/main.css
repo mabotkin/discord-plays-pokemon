@@ -5,11 +5,15 @@ canvas {
 #input-div {
 	width: 240px;
 	height: 160px;
+	text-align: center;
 }
 #inputs {
 	overflow-y: auto;
 	height: 100%;
 }
+#wrapper {
+	text-align: center;
+}
 ul.pokebullets{
-	list-style-image: url('/assests/bullet.png');
+	list-style-image: url('/assets/bullet.png');
 }

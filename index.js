@@ -67,7 +67,7 @@ function loadRom( save_file ) {
             console.error('loadRom failed:', err);
             process.exit(1);
         }
-        load( gba , SAVE_DIR + SAVE_FILENAME + ".sav" );
+        load( gba , SAVE_DIR + save_file + ".sav" );
         gba.runStable();
         global_draw_interval = setInterval( function() {
             if ( counter % FRAMERATE === 0 ) {
@@ -147,7 +147,7 @@ client.on('message', message => {
 			var file = words[1];
 			console.log("loading: " + file );
             clearInterval( global_draw_interval );
-            loadRom( SAVE_DIR + file + ".sav" );
+            loadRom( file );
 		}
 
 		if ( m.startsWith( "--HELP" ) ) {
