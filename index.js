@@ -2,9 +2,14 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var fs = require('fs');
+
+require("dotenv").config();
+
 var GameBoyAdvance = require('gbajs');
 
-var FRAMERATE = 15;
+var FRAMERATE = Math.min(Math.max( parseInt( process.env.FRAMERATE ), 1 ), 60 );
+var PORT = parseInt( process.env.PORT );
+var ROMNAME = process.env.ROM_NAME;
 
 var gba = new GameBoyAdvance();
  
@@ -26,7 +31,7 @@ var biosBuf = fs.readFileSync('./node_modules/gbajs/resources/bios.bin');
 gba.setBios(biosBuf);
 gba.setCanvasMemory();
  
-gba.loadRomFromFile('roms/pokemon_firered.gba', function (err, result) {
+gba.loadRomFromFile('roms/' + ROMNAME, function (err, result) {
 	if (err) {
 		console.error('loadRom failed:', err);
 		process.exit(1);
@@ -45,6 +50,6 @@ io.on('connection', (socket) => {
 	}, 1000.0/FRAMERATE);
 });
 
-http.listen(1151, function () {
-	console.log('Test app on 1151 running!');
+http.listen(PORT , function () {
+	console.log('Discord Plays Pokemon running on port ' + PORT + '.');
 });
