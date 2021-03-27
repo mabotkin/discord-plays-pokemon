@@ -18,10 +18,15 @@
 			if ( ul.childNodes.length > 100 ) {
 				ul.removeChild( ul.children[0] );
 			}
+			ul.scrollTop = ul.scrollHeight;
 		});
 		function makeli( data ) {
 			var li = document.createElement("li");
-			li.appendChild( document.createTextNode( data ) );
+			var message = "Input: " + data["input"];
+			if ( data["author"] != "" ) {
+				var message = data["author"] + ": " + data["input"];
+			}
+			li.appendChild( document.createTextNode( message ) );
 			return li;
 		}
 	</script>
@@ -36,7 +41,7 @@
 		}
 		#inputs {
 			overflow-y: auto;
-			height: 160px;
+			height: 100%;
 		}
 	</style>
 </head>

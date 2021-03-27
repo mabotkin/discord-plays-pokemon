@@ -13,7 +13,7 @@ var DISCORD_CHANNEL_ID = parseInt( process.env.DISCORD_CHANNEL_ID );
 var FRAMERATE = Math.min(Math.max( parseInt( process.env.FRAMERATE ), 1 ), 60 );
 var PORT = parseInt( process.env.PORT );
 var ROMNAME = process.env.ROM_NAME;
-vara SAVE_DIR = process.env.SAVE_DIR;
+var SAVE_DIR = process.env.SAVE_DIR;
 
 var gba = new GameBoyAdvance();
  
@@ -21,13 +21,13 @@ gba.logLevel = gba.LOG_ERROR;
 
 //var prevFrame = "";
 function save( gba, file ) {
-  var data = gba.encodeBase64(gba.mmu.save.view);
-  fs.writeFile( file, data );
+	var data = gba.encodeBase64(gba.mmu.save.view);
+	fs.writeFile( file, data );
 }
 
 function load( gba, file ) {
-  var data = fs.readFileSync( file );
-  gba.decodeSaveData( data );
+	var data = fs.readFileSync( file );
+	gba.decodeSaveData( data );
 }
 
 function pngToDataURL( socket , png ) {	
@@ -103,24 +103,26 @@ client.on('message', message => {
 		if ( m in legal_buttons ) {
 			keypad.press( legal_buttons[ m ] );
 			//
-			var displayMessage = message.author.username + ": " + message.content;
+			var displayMessage = { "author" : message.author.username , "input" : message.content }
 			if ( ANONYMOUS_MODE ) {
-				displayMessage = "Input: " + message.content;
+				displayMessage = { "author" : "" , "input" : message.content }
 			}
 			io.emit( "input" , displayMessage );
 		}
 
-    if ( m.startsWith( "SAVE" ) ) {
-      var words = m.split( " " );
-      var file = words[1];
-      save( gba, SAVE_DIR + file + ".sav" );
-    }
+		if ( m.startsWith( "--SAVE" ) ) {
+			var words = m.split( " " );
+			var file = words[1];
+			console.log("saving: " + file );
+			save( gba, SAVE_DIR + file + ".sav" );
+		}
 
-    if ( m.startsWith( "LOAD" ) ) {
-      var words = m.split( " " );
-      var file = words[1];
-      load( gba, SAVE_DIR + file + ".sav" );
-    }
+		if ( m.startsWith( "--LOAD" ) ) {
+			var words = m.split( " " );
+			var file = words[1];
+			console.log("loading: " + file );
+			load( gba, SAVE_DIR + file + ".sav" );
+		}
 		//console.log( message.author.username + ": " + message.content );
 	}
 });
