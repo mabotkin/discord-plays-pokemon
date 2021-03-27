@@ -117,6 +117,9 @@ client.on('message', message => {
 		if ( m.startsWith( "--SAVE" ) ) {
 			var words = m.split( " " );
 			var file = words[1];
+			if ( words.length < 1 ) {
+				file = SAVE_FILENAME;
+			}
 			console.log( "saving: " + file );
 			save( gba, SAVE_DIR + file + ".sav" );
 		}
