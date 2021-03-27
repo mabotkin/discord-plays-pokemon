@@ -6,6 +6,7 @@ var Discord = require('discord.js');
 var GameBoyAdvance = require('gbajs');
 
 require("dotenv").config();
+var ANONYMOUS_MODE = ( process.env.ANONYMOUS_MODE == "1" );
 var DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 var DISCORD_GUILD_ID = parseInt( process.env.DISCORD_GUILD_ID );
 var DISCORD_CHANNEL_ID = parseInt( process.env.DISCORD_CHANNEL_ID );
@@ -17,6 +18,7 @@ var gba = new GameBoyAdvance();
  
 gba.logLevel = gba.LOG_ERROR;
 
+//var prevFrame = "";
 function pngToDataURL( socket , png ) {	
 	png.pack();
 	var chunks = [];
@@ -25,7 +27,14 @@ function pngToDataURL( socket , png ) {
 	});
 	png.on('end', function() {
 		var result = Buffer.concat(chunks);
-		socket.emit("canvasData", result.toString('base64') );
+		var ans = result.toString('base64');
+		socket.emit("canvasData", ans );
+		/*
+		if ( ans != prevFrame ) {
+			socket.emit("canvasData", ans );
+			prevFrame = ans;
+		}
+		*/
 	});
 }
  
@@ -82,6 +91,12 @@ client.on('message', message => {
 		var m = message.content.trim();
 		if ( m in legal_buttons ) {
 			keypad.press( legal_buttons[ m ] );
+			//
+			var displayMessage = message.author.username + ": " + message.content;
+			if ( ANONYMOUS_MODE ) {
+				displayMessage = "Input: " + message.content;
+			}
+			io.emit( "input" , displayMessage );
 		}
 		//console.log( message.author.username + ": " + message.content );
 	}

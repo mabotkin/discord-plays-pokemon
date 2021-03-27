@@ -3,7 +3,7 @@
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
 		var socket = io();
-		socket.on("canvasData", ( data ) => { 
+		socket.on( "canvasData" , ( data ) => { 
 			var canvas = document.getElementById('screen');
 			var context = canvas.getContext('2d');
 			var img = new Image();
@@ -12,11 +12,31 @@
 			}
 			img.src = "data:image/png;base64," + data;
 		});
+		socket.on( "input" , ( data ) => {
+			ul = document.getElementById( "inputs" );
+			ul.appendChild( makeli( data ) );
+			if ( ul.childNodes.length > 100 ) {
+				ul.removeChild( ul.children[0] );
+			}
+		});
+		function makeli( data ) {
+			var li = document.createElement("li");
+			li.appendChild( document.createTextNode( data ) );
+			return li;
+		}
 	</script>
 	<style>
 		canvas {
 			width: 720px;
 			height: 480px;
+		}
+		#input-div {
+			width: 240px;
+			height: 160px;
+		}
+		#inputs {
+			overflow-y: auto;
+			height: 160px;
 		}
 	</style>
 </head>
@@ -24,5 +44,9 @@
 	<center>
 		<h1>Discord Plays Pokemon!</h1>
 		<canvas id="screen" width=240 height=160></canvas>
+		<div id="input-div">
+			<ul id="inputs">
+			</ul>
+		</div>
 	</center>
 </body>
