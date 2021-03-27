@@ -5,7 +5,7 @@ var io = require('socket.io')(http);
 var fs = require('fs');
 var Discord = require('discord.js');
 var GameBoyAdvance = require('gbajs');
-var gba_yukky = require('gba_yukky.js');
+var gba_yukky = require('./public/gba_yukky.js');
 
 require("dotenv").config();
 var ANONYMOUS_MODE = ( process.env.ANONYMOUS_MODE == "1" );
@@ -16,6 +16,7 @@ var FRAMERATE = Math.min(Math.max( parseInt( process.env.FRAMERATE ), 1 ), 60 );
 var PORT = parseInt( process.env.PORT );
 var ROMNAME = process.env.ROM_NAME;
 var SAVE_DIR = process.env.SAVE_DIR;
+var SAVE_FILENAME = process.env.SAVE_FILENAME;
 
 var gba = new GameBoyAdvance();
  
@@ -24,13 +25,14 @@ gba.logLevel = gba.LOG_ERROR;
 function save( gba, file ) {
     console.log("save called to file: ", file);
 	var data = gba_yukky.encodeBase64(gba.mmu.save.view);
-	fs.writeFile( file, data );
+	fs.writeFileSync( file, data , "utf8" );
 }
 
 function load( gba, file ) {
     console.log("load called to file: ", file);
-	var data = fs.readFileSync( file );
-	gba.setSaveData( gba_yukky.decodeBase64( data ) );
+	var data = fs.readFileSync( file , "utf8" );
+	gba.setSavedata( gba_yukky.decodeBase64( data ) );
+	gba.runStable();
 }
 
 var prevFrame = "";
@@ -60,7 +62,7 @@ gba.loadRomFromFile('roms/' + ROMNAME, function (err, result) {
 		console.error('loadRom failed:', err);
 		process.exit(1);
 	}
-	//gba.loadSavedataFromFile('/path/to/game.sav');
+	load( gba , SAVE_DIR + SAVE_FILENAME + ".sav" );
 	gba.runStable();
 	setInterval( function() {
 		pngToDataURL( gba.screenshot() );

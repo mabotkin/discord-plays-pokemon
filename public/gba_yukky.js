@@ -1,10 +1,8 @@
 function atob(a) {
-    console.log("atob called");
     return Buffer.from( a, "base64" ).toString( "binary" );
 }
 
 function btoa(str) {
-    console.log("btoa called");
     var buffer;
 
     if ( str instanceof Buffer ) {
@@ -16,8 +14,8 @@ function btoa(str) {
     return buffer.toString( "base64" );
 }
 
-function decodeBase64 = function(string) {
-    console.log("decoding base 64 string: ", string);
+function decodeBase64(string) {
+    //console.log("decoding base 64 string: ", string);
     var length = (string.length * 3 / 4);
     if (string[string.length - 2] == '=') {
         length -= 2;
@@ -41,12 +39,12 @@ function decodeBase64 = function(string) {
         }
     }
 
-    console.log("decoded base 64 value: ", buffer);
+    //console.log("decoded base 64 value: ", buffer);
     return buffer;
 };
 
 function encodeBase64( view ) {
-    console.log("encoding base 64 view: ", view);
+    //console.log("encoding base 64 view: ", view);
     var data = [];
     var b;
     var wordstring = [];
@@ -62,7 +60,7 @@ function encodeBase64( view ) {
     if (wordstring.length) {
     data.push(btoa(wordstring.join('')));
     }
-    console.log("encoded base 64 value: ", data.join(''));
+    //console.log("encoded base 64 value: ", data.join(''));
     return data.join('');
 };
 
