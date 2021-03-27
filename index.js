@@ -39,7 +39,7 @@ function load( gba, file ) {
 }
 
 var prevFrame = "";
-function pngToDataURL( png ) {	
+function pngToDataURL( png , override=false ) {	
 	png.pack();
 	var chunks = [];
 	png.on('data', function(chunk) {
@@ -49,12 +49,16 @@ function pngToDataURL( png ) {
 		var result = Buffer.concat(chunks);
 		var ans = result.toString('base64');
 		//socket.emit("canvasData", ans );
-		if ( ans != prevFrame ) {
+		if ( ans != prevFrame || override ) {
 			io.emit("canvasData", ans );
 			prevFrame = ans;
 		}
 	});
 }
+
+io.on('connection', (socket) => {
+	pngToDataURL( gba.screenshot() , true );
+});
  
 var biosBuf = fs.readFileSync('./node_modules/gbajs/resources/bios.bin');
 gba.setBios(biosBuf);

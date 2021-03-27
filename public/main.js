@@ -18,10 +18,14 @@ socket.on( "input" , ( data ) => {
 });
 function makeli( data ) {
 	var li = document.createElement("li");
+	var now = new Date();
 	var message = "Input: " + data["input"];
 	if ( data["author"] != "" ) {
 		var message = data["author"] + ": " + data["input"];
 	}
-	li.appendChild( document.createTextNode( message ) );
+	li.appendChild( document.createTextNode( "(" + formatTime( now ) + ") " + message ) );
 	return li;
+}
+function formatTime( time ) {
+	return time.toLocaleTimeString();
 }
