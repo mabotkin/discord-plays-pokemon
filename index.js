@@ -4,6 +4,7 @@ var io = require('socket.io')(http);
 var fs = require('fs');
 var Discord = require('discord.js');
 var GameBoyAdvance = require('gbajs');
+var gba_yukky = require('gba_yukky.js');
 
 require("dotenv").config();
 var ANONYMOUS_MODE = ( process.env.ANONYMOUS_MODE == "1" );
@@ -20,13 +21,15 @@ var gba = new GameBoyAdvance();
 gba.logLevel = gba.LOG_ERROR;
 
 function save( gba, file ) {
-	var data = gba.encodeBase64(gba.mmu.save.view);
+    console.log("save called to file: ", file);
+	var data = gba_yukky.encodeBase64(gba.mmu.save.view);
 	fs.writeFile( file, data );
 }
 
 function load( gba, file ) {
+    console.log("load called to file: ", file);
 	var data = fs.readFileSync( file );
-	gba.decodeSaveData( data );
+	gba.setSaveData( gba_yukky.decodeBase64( data ) );
 }
 
 var prevFrame = "";
@@ -112,7 +115,13 @@ client.on('message', message => {
 			save( gba, SAVE_DIR + file + ".sav" );
 		}
 
-		if ( m.startsWith( "--LOAD" ) ) {
+        if ( m.startsWith( "--LOAD-LIST" ) ) {
+            console.log( "displaying load list" );
+            fs.readdirSync( SAVE_DIR ).forEach( file => {
+                // do some discord action
+                console.log( file );
+            } );
+        } else if ( m.startsWith( "--LOAD" ) ) {
 			var words = m.split( " " );
 			var file = words[1];
 			console.log("loading: " + file );
