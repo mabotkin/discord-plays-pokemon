@@ -1,16 +1,30 @@
-var express = require('express');
+var app = require('express')();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 var fs = require('fs');
 var GameBoyAdvance = require('gbajs');
-const { createCanvas } = require('canvas');
- 
+
+var FRAMERATE = 15;
+
 var gba = new GameBoyAdvance();
  
 gba.logLevel = gba.LOG_ERROR;
+
+function pngToDataURL( socket , png ) {	
+	png.pack();
+	var chunks = [];
+	png.on('data', function(chunk) {
+		chunks.push(chunk);
+	});
+	png.on('end', function() {
+		var result = Buffer.concat(chunks);
+		socket.emit("canvasData", result.toString('base64') );
+	});
+}
  
-var screen = createCanvas( 240 , 160 );
 var biosBuf = fs.readFileSync('./node_modules/gbajs/resources/bios.bin');
 gba.setBios(biosBuf);
-gba.setCanvasDirect(screen);
+gba.setCanvasMemory();
  
 gba.loadRomFromFile('roms/pokemon_firered.gba', function (err, result) {
 	if (err) {
@@ -20,26 +34,17 @@ gba.loadRomFromFile('roms/pokemon_firered.gba', function (err, result) {
 	//gba.loadSavedataFromFile('/path/to/game.sav');
 	gba.runStable();
 });
- 
- /*
-var idx = 0;
-setInterval(function () {
-	var keypad = gba.keypad;
-	keypad.press(keypad.A);
 
-	setTimeout(function () {
-		var png = gba.screenshot();
-		png.pack().pipe(fs.createWriteStream('screenshots/gba' + idx + '.png'));
-		idx++;
-	}, 200);
-}, 2000);
-*/
-
-var app = express();
 app.get('/', function (req, res) {
-	res.send('Hello World!');
+	res.sendFile(__dirname + "/public/index.html");
 });
 
-app.listen(1151, function () {
+io.on('connection', (socket) => {
+	setInterval( function() {
+		pngToDataURL( socket , gba.screenshot() );
+	}, 1000.0/FRAMERATE);
+});
+
+http.listen(1151, function () {
 	console.log('Test app on 1151 running!');
 });
