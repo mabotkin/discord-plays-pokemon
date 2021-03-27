@@ -9,6 +9,7 @@ var gba_yukky = require('./public/gba_yukky.js');
 
 require("dotenv").config();
 var ANONYMOUS_MODE = ( process.env.ANONYMOUS_MODE == "1" );
+var DISCORD_ADMIN_IDS = process.env.DISCORD_ADMIN_IDS;
 var DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 var DISCORD_GUILD_ID = parseInt( process.env.DISCORD_GUILD_ID );
 var DISCORD_CHANNEL_ID = parseInt( process.env.DISCORD_CHANNEL_ID );
@@ -19,6 +20,8 @@ var SAVE_DIR = process.env.SAVE_DIR;
 var SAVE_FILENAME = process.env.SAVE_FILENAME;
 
 var gba = new GameBoyAdvance();
+var global_draw_interval = undefined;
+var counter = 0;
  
 gba.logLevel = gba.LOG_ERROR;
 
@@ -57,17 +60,26 @@ var biosBuf = fs.readFileSync('./node_modules/gbajs/resources/bios.bin');
 gba.setBios(biosBuf);
 gba.setCanvasMemory();
  
-gba.loadRomFromFile('roms/' + ROMNAME, function (err, result) {
-	if (err) {
-		console.error('loadRom failed:', err);
-		process.exit(1);
-	}
-	load( gba , SAVE_DIR + SAVE_FILENAME + ".sav" );
-	gba.runStable();
-	setInterval( function() {
-		pngToDataURL( gba.screenshot() );
-	}, 1000.0/FRAMERATE);
-});
+function loadRom( save_file ) {
+    // gba.reset();
+    gba.loadRomFromFile('roms/' + ROMNAME, function (err, result) {
+        if (err) {
+            console.error('loadRom failed:', err);
+            process.exit(1);
+        }
+        load( gba , SAVE_DIR + SAVE_FILENAME + ".sav" );
+        gba.runStable();
+        global_draw_interval = setInterval( function() {
+            if ( counter % FRAMERATE === 0 ) {
+                console.log("calling pngToDataURL");
+            }
+            counter += 1;
+            pngToDataURL( gba.screenshot() );
+        }, 1000.0/FRAMERATE);
+    });
+}
+
+loadRom( SAVE_FILENAME );
 
 /*
 app.get('/', function (req, res) {
@@ -134,7 +146,8 @@ client.on('message', message => {
 			var words = m.split( " " );
 			var file = words[1];
 			console.log("loading: " + file );
-			load( gba, SAVE_DIR + file + ".sav" );
+            clearInterval( global_draw_interval );
+            loadRom( SAVE_DIR + file + ".sav" );
 		}
 
 		if ( m.startsWith( "--HELP" ) ) {
