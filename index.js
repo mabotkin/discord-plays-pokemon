@@ -21,7 +21,6 @@ var SAVE_FILENAME = process.env.SAVE_FILENAME;
 
 var gba = new GameBoyAdvance();
 var global_draw_interval = undefined;
-var counter = 0;
  
 gba.logLevel = gba.LOG_ERROR;
 
@@ -65,7 +64,6 @@ gba.setBios(biosBuf);
 gba.setCanvasMemory();
  
 function loadRom( save_file ) {
-    // gba.reset();
     gba.loadRomFromFile('roms/' + ROMNAME, function (err, result) {
         if (err) {
             console.error('loadRom failed:', err);
@@ -74,10 +72,6 @@ function loadRom( save_file ) {
         load( gba , SAVE_DIR + save_file + ".sav" );
         gba.runStable();
         global_draw_interval = setInterval( function() {
-            if ( counter % FRAMERATE === 0 ) {
-                console.log("calling pngToDataURL");
-            }
-            counter += 1;
             pngToDataURL( gba.screenshot() );
         }, 1000.0/FRAMERATE);
     });
@@ -119,7 +113,7 @@ var legal_buttons = {
 client.on('message', message => {
 	if ( message.guild == DISCORD_GUILD_ID && message.channel == DISCORD_CHANNEL_ID )
 	{
-		var m = message.content.trim();
+		var m = message.content.trim().toUpperCase();
 		if ( m in legal_buttons ) {
 			keypad.press( legal_buttons[ m ] );
 			//
@@ -147,11 +141,19 @@ client.on('message', message => {
                 console.log( file );
             } );
         } else if ( m.startsWith( "--LOAD" ) ) {
+            if ( !DISCORD_ADMIN_IDS.includes( message.author.username ) ) {
+                message.channel.send( "You don't have admin privileges to load savefiles" )
+            }
 			var words = m.split( " " );
-			var file = words[1];
-			console.log("loading: " + file );
-            clearInterval( global_draw_interval );
-            loadRom( file );
+			var save_index = parseInt(words[1]);
+            if ( [0,1,2,3,4,5,6,7,8,9].includes(save_index) ) {
+                var file = "save_state_" + save_index;
+			    console.log("loading: " + file );
+                clearInterval( global_draw_interval );
+                loadRom( file );
+            } else {
+                message.channel.send( "Load index invalid. Expecting a number from 0-9." );
+            }
 		}
 
 		if ( m.startsWith( "--HELP" ) ) {
