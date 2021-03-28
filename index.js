@@ -17,7 +17,8 @@ var FRAMERATE = Math.min(Math.max( parseInt( process.env.FRAMERATE ), 1 ), 60 );
 var PORT = parseInt( process.env.PORT );
 var ROMNAME = process.env.ROM_NAME;
 var SAVE_DIR = process.env.SAVE_DIR;
-var SAVE_FILENAME = process.env.SAVE_FILENAME;
+
+var current_save_index = parseInt( process.env.SAVE_SLOT_DEFAULT );
 
 var gba = new GameBoyAdvance();
 var global_draw_interval = undefined;
@@ -63,13 +64,18 @@ var biosBuf = fs.readFileSync('./node_modules/gbajs/resources/bios.bin');
 gba.setBios(biosBuf);
 gba.setCanvasMemory();
  
-function loadRom( save_file ) {
+function loadRom( save_index ) {
     gba.loadRomFromFile('roms/' + ROMNAME, function (err, result) {
         if (err) {
             console.error('loadRom failed:', err);
             process.exit(1);
         }
-        load( gba , SAVE_DIR + save_file + ".sav" );
+		if ( !fs.existsSync( SAVE_DIR + "save_state_" + save_index + ".sav" ) ) {
+			console.log( "Load " + save_index + " does not exist, loading empty state." );
+		}
+		else {
+			load( gba , SAVE_DIR + "save_state_" + save_index + ".sav" );
+		}
         gba.runStable();
         global_draw_interval = setInterval( function() {
             pngToDataURL( gba.screenshot() );
@@ -77,13 +83,8 @@ function loadRom( save_file ) {
     });
 }
 
-loadRom( SAVE_FILENAME );
+loadRom( current_save_index );
 
-/*
-app.get('/', function (req, res) {
-	res.sendFile(__dirname + "/public/index.html");
-});
-*/
 app.use(express.static('public'))
 
 http.listen(PORT , function () {
@@ -126,56 +127,114 @@ client.on('message', message => {
 
 		if ( m.startsWith( "--SAVE" ) ) {
 			var words = m.split( " " );
-			var file = words[1];
-			if ( words.length < 1 ) {
-				file = SAVE_FILENAME;
+			var save_index = current_save_index
+			var file = "save_state_" + save_index;
+			if ( words.length <= 1 && current_save_index < 0 ) {
+				message.channel.send("No save slot selected, must save to a slot.");
+				file = "";
 			}
-			console.log( "saving: " + file );
-			save( gba, SAVE_DIR + file + ".sav" );
+			if ( words.length > 1 )
+			{
+				save_index = parseInt(words[1]);
+				if ( !DISCORD_ADMIN_IDS.includes( message.author.id ) ) {
+					message.channel.send( "You don't have admin privileges to save to other slots." )
+					file = "";
+				}
+				else if ( [0,1,2,3,4,5,6,7,8,9].includes(save_index) ) {
+					file = "save_state_" + save_index;
+				} else {
+					message.channel.send( "Save index invalid. Expecting a number from 0-9, or no index for default." );
+					console.log("Save index " + save_index + " invalid");
+					file = "";
+				}
+			}
+			if ( file != "" ) {
+				console.log( "saving: " + file );
+				message.channel.send( "Saving to slot " + save_index + "..." );
+				save( gba, SAVE_DIR + file + ".sav" );
+				message.channel.send( "Game saved." );
+				current_save_index = save_index;
+			}
 		}
 
-        if ( m.startsWith( "--LOAD-LIST" ) ) {
-            console.log( "displaying load list" );
-            fs.readdirSync( SAVE_DIR ).forEach( file => {
-                // do some discord action
-                console.log( file );
-            } );
-        } else if ( m.startsWith( "--LOAD" ) ) {
-            if ( !DISCORD_ADMIN_IDS.includes( message.author.username ) ) {
-                message.channel.send( "You don't have admin privileges to load savefiles" )
+        if ( m.startsWith( "--LOAD" ) ) {
+            if ( !DISCORD_ADMIN_IDS.includes( message.author.id ) ) {
+                message.channel.send( "You don't have admin privileges to load savefiles." )
             }
-			var words = m.split( " " );
-			var save_index = parseInt(words[1]);
-            if ( [0,1,2,3,4,5,6,7,8,9].includes(save_index) ) {
-                var file = "save_state_" + save_index;
-			    console.log("loading: " + file );
-                clearInterval( global_draw_interval );
-                loadRom( file );
-            } else {
-                message.channel.send( "Load index invalid. Expecting a number from 0-9." );
-            }
+			else {
+				var words = m.split( " " );
+				var file = "save_state_" + current_save_index;
+				var save_index = current_save_index;
+				if ( words.length < 2 ) {
+					file = "placeholder_DNE";
+					save_index = -1;
+				}
+				else {
+					save_index = parseInt(words[1]);
+					if ( [0,1,2,3,4,5,6,7,8,9].includes(save_index) ) {
+						file = "save_state_" + save_index;
+						if ( !fs.existsSync( SAVE_DIR + file + ".sav" ) ) {
+							message.channel.send( "Load " + save_index + " does not exist." );
+							file = "";
+						}
+					} else {
+						message.channel.send( "Load index invalid. Expecting a number from 0-9, or no index for blank slate." );
+						file = "";
+					}
+				}
+				if ( file != "" ) {
+					console.log("loading: " + file );
+					if ( save_index >= 0 ) {
+						message.channel.send( "Loading slot " + save_index + "..." );
+					}
+					else {
+						message.channel.send( "Loading blank slot..." );
+					}
+					clearInterval( global_draw_interval );
+					loadRom( file );
+					if ( save_index >= 0 ) {
+						message.channel.send( "Loaded slot " + save_index + "." );
+					}
+					else {
+						message.channel.send( "Loaded blank slot." );
+					}
+					current_save_index = save_index;
+				}
+			}
 		}
 
-		if ( m.startsWith( "--HELP" ) ) {
-			//const attachment = new Discord.MessageAttachment('public/pokeball.png', 'pokeball');
+		if ( m.startsWith( "--INFO" ) ) {
+			var slot = "Slot " + current_save_index;
+			if ( current_save_index == -1 ) {
+				slot = "No slot selected.";
+			}
 			var embed = new Discord.MessageEmbed()
-				.attachFiles(attachment)
 				.setColor('#ee1515')
-				.setTitle('Discord Plays Pokemon!')
-				.setURL('https://github.com/mabotkin/discord-plays-pokemon')
-				//.setAuthor('Alex, Anoop, and David', 'attachment://pokeball', 'https://github.com/mabotkin/discord-plays-pokemon')
-				.setDescription('Discord Plays Pokemon allows for users in a Discord channel to send inputs to a GBA emulator, and the output is rendered on a web server.')
-				//.setThumbnail('attachment://pokeball')
+				.setTitle('Emulator Information')
 				.addFields(
-					{ name: 'GBA Inputs', value: Object.keys( legal_buttons ).join( "\n" ) , inline: true },
-					{ name: 'Commands', value: '--SAVE\n--LOAD\n--HELP', inline: true },
+					{ name: 'ROM Name', value: ROMNAME , inline: true },
+					{ name: 'Save Slot', value: slot , inline: true },
 				)
-				//.setImage('attachment://pokeball')
 				.setTimestamp()
-				.setFooter('Made by Alex, Anoop, and David.')//, 'attachment://pokeball');
+				.setFooter('Use \"--INFO\" to get this message.');
 
 			message.channel.send( embed );
 		}
-		//console.log( message.author.username + ": " + message.content );
+
+		if ( m.startsWith( "--HELP" ) ) {
+			var embed = new Discord.MessageEmbed()
+				.setColor('#ee1515')
+				.setTitle('Discord Plays Pokemon!')
+				.setURL('https://github.com/mabotkin/discord-plays-pokemon')
+				.setDescription('Discord Plays Pokemon allows for users in a Discord channel to send inputs to a GBA emulator, and the output is rendered on a web server.')
+				.addFields(
+					{ name: 'GBA Inputs', value: Object.keys( legal_buttons ).join( "\n" ) , inline: true },
+					{ name: 'Commands', value: '--SAVE\n--LOAD\n--INFO\n--HELP', inline: true },
+				)
+				.setTimestamp()
+				.setFooter('Made by Alex, Anoop, and David.');
+
+			message.channel.send( embed );
+		}
 	}
 });
