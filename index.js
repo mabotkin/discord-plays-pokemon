@@ -74,10 +74,12 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         //console.log("disconnection from " + address); //.address + ":" + address.port);
         connected_addresses = connected_addresses.filter( function( add ) { return add !== address } );
+		io.emit( "viewers" , connected_addresses.length );
         //console.log("connected addresses: ", connected_addresses);
     });
 
     connected_addresses.push( address );
+	io.emit( "viewers" , connected_addresses.length );
     //console.log("connected addresses: ", connected_addresses);
     
 	pngToDataURL( gba.screenshot() , true );
@@ -222,7 +224,7 @@ client.on('message', message => {
 						message.channel.send( "Loading blank slot..." );
 					}
 					clearInterval( global_draw_interval );
-					loadRom( file );
+					loadRom( save_index );
 					if ( save_index >= 0 ) {
 						message.channel.send( "Loaded slot " + save_index + "." );
 					}
