@@ -22,6 +22,8 @@ var current_save_index = parseInt( process.env.SAVE_SLOT_DEFAULT );
 
 var gba = new GameBoyAdvance();
 var global_draw_interval = undefined;
+
+var connected_addresses = [];
  
 gba.logLevel = gba.LOG_ERROR;
 
@@ -57,9 +59,27 @@ function pngToDataURL( png , override=false ) {
 }
 
 io.on('connection', (socket) => {
+    var address = socket.request.connection.remoteAddress;
+    console.log("new attempted connection from ", address);
+    console.log("address in addresses?: ", connected_addresses.includes( address ) );
+    if ( connected_addresses.includes( address ) ) {
+        console.log( "address already connected, disconnecting" );
+        socket.disconnect();
+        return;
+    }
+
+    connected_addresses.push( address );
+    console.log("connected addresses: ", connected_addresses);
+    
 	pngToDataURL( gba.screenshot() , true );
+
+    socket.on('disconnect', function() {
+        console.log("disconnection from " + address.address + ":" + address.port);
+        connected_addresses = connected_addresses.filter( function( add ) { return add !== address } );
+        console.log("connected addresses: ", connected_addresses);
+    });
 });
- 
+
 var biosBuf = fs.readFileSync('./node_modules/gbajs/resources/bios.bin');
 gba.setBios(biosBuf);
 gba.setCanvasMemory();
