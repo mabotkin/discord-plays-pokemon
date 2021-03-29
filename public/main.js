@@ -24,7 +24,7 @@ function makeli( data ) {
 		var message = data["author"] + ": " + data["input"];
 	}
 	li.appendChild( document.createTextNode( "(" + formatTime( now ) + ") " + message ) );
-	li.addClass('pokebullet');
+	li.setAttribute('class', 'pokebullet');
 	return li;
 }
 function formatTime( time ) {
