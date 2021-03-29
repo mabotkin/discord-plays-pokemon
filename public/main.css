@@ -3,10 +3,14 @@ canvas {
 	height: 480px;
 }
 #input-div {
-	width: 300px;
-	height: 200px;
+	width: 360px;
+	height: 300px;
 	margin: 0 auto;
 	text-align: left;
+	border: 4px black;
+	border-style: double;
+	margin-top: 30px;
+	padding: 10px;
 }
 #inputs {
 	overflow-y: auto;
@@ -23,7 +27,7 @@ ul.nobullets{
 }
 li.pokebullet{
 	background: url('./assets/bullet.png') no-repeat left top;
-	height: 40px;
+	height: 30px;
 	padding-left: 40px;
 	padding-top: 3px;
 }

@@ -1,7 +1,10 @@
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var io = require('socket.io').listen(http, {
+  pingTimeout: 2000,
+  pingInterval: 2000
+});;
 var fs = require('fs');
 var Discord = require('discord.js');
 var GameBoyAdvance = require('gbajs');
@@ -59,25 +62,25 @@ function pngToDataURL( png , override=false ) {
 }
 
 io.on('connection', (socket) => {
-    var address = socket.request.connection.remoteAddress;
-    console.log("new attempted connection from ", address);
-    console.log("address in addresses?: ", connected_addresses.includes( address ) );
+    //var address = socket.request.connection.remoteAddress;
+    var address = socket.handshake.headers['x-forwarded-for'].split(',')[0];
+    //console.log("new attempted connection from ", address);
+    //console.log("address in addresses?: ", connected_addresses.includes( address ) );
     if ( connected_addresses.includes( address ) ) {
-        console.log( "address already connected, disconnecting" );
+        //console.log( "address already connected, disconnecting" );
         socket.disconnect();
         return;
     }
+    socket.on('disconnect', () => {
+        //console.log("disconnection from " + address); //.address + ":" + address.port);
+        connected_addresses = connected_addresses.filter( function( add ) { return add !== address } );
+        //console.log("connected addresses: ", connected_addresses);
+    });
 
     connected_addresses.push( address );
-    console.log("connected addresses: ", connected_addresses);
+    //console.log("connected addresses: ", connected_addresses);
     
 	pngToDataURL( gba.screenshot() , true );
-
-    socket.on('disconnect', function() {
-        console.log("disconnection from " + address.address + ":" + address.port);
-        connected_addresses = connected_addresses.filter( function( add ) { return add !== address } );
-        console.log("connected addresses: ", connected_addresses);
-    });
 });
 
 var biosBuf = fs.readFileSync('./node_modules/gbajs/resources/bios.bin');
@@ -127,8 +130,16 @@ var legal_buttons = {
 	"LEFT" : keypad.LEFT,
 	"UP" : keypad.UP,
 	"DOWN" : keypad.DOWN,
-	"R" : keypad.R,
-	"L" : keypad.L
+	"R" : keypad.RIGHT,
+	"L" : keypad.LEFT,
+	"U" : keypad.UP,
+	"D" : keypad.DOWN,
+	">" : keypad.RIGHT,
+	"<" : keypad.LEFT,
+	"^" : keypad.UP,
+	"V" : keypad.DOWN,
+	"RT" : keypad.R,
+	"LT" : keypad.L
 }
 
 client.on('message', message => {
@@ -138,9 +149,9 @@ client.on('message', message => {
 		if ( m in legal_buttons ) {
 			keypad.press( legal_buttons[ m ] );
 			//
-			var displayMessage = { "author" : message.author.username , "input" : message.content }
+			var displayMessage = { "author" : message.author.username , "input" : m }
 			if ( ANONYMOUS_MODE ) {
-				displayMessage = { "author" : "" , "input" : message.content }
+				displayMessage = { "author" : "" , "input" : m }
 			}
 			io.emit( "input" , displayMessage );
 		}
