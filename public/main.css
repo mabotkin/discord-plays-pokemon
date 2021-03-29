@@ -16,6 +16,14 @@ body {
 	font-family: Helvetica, sans-serif;
 	text-align: center;
 }
-ul.pokebullets{
-	list-style-image: url('/assets/bullet.png');
+ul.nobullets{
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+li.pokebullet{
+	background: url('./assets/bullet.png') no-repeat left top;
+	height: 40px;
+	padding-left: 40px;
+	padding-top: 3px;
 }
