@@ -23,7 +23,6 @@ socket.on( "input" , ( data ) => {
 });
 socket.on( "viewers" , ( data ) => {
 	var viewers = parseInt( data );
-	console.log( viewers );
 	document.getElementById( "viewers" ).innerHTML = "Viewers: " + viewers;
 });
 function makeli( data ) {
