@@ -10,7 +10,7 @@ var Discord = require('discord.js');
 var GameBoyAdvance = require('gbajs');
 
 var gba_yukky = require('./gba_yukky.js');
-var pokemonMemory= require("./MemoryReader.js");
+var pokemonMemory = require("./MemoryReader.js");
 
 require("dotenv").config();
 var ANONYMOUS_MODE = ( process.env.ANONYMOUS_MODE == "1" );
@@ -114,8 +114,14 @@ loadRom( current_save_index );
 
 var config = new pokemonMemory.MemoryConfig();
 var mr = new pokemonMemory.MemoryReader( gba , config );
+var prevGameData = undefined;
+var gameData = undefined;
 setInterval( function() {
-	console.log( mr.getAllData() );
+	gameData = mr.getAllData();
+	if ( JSON.stringify( prevGameData ) != JSON.stringify( gameData ) ) {
+		//io.emit("gameData" , gameData );
+		prevGameData = gameData;
+	}
 }, 1000 );
 
 app.use(express.static('public'))
@@ -262,6 +268,58 @@ client.on('message', message => {
 			message.channel.send( embed );
 		}
 
+		if ( m.startsWith( "--PARTY" ) ) {
+			var words = m.split( " " );
+			if ( words.length == 1 ) {
+				var partyData = gameData.partyPokemon.map( ( pokemon , index ) => {
+					var body_1 = pokemon.info.species_name + " lvl " + pokemon.stats.level;
+					var body_2 = pokemon.stats.currentHP + "/" + pokemon.stats.totalHP + " HP";
+					var body = body_1 + "\n" + body_2;
+					return { name: "#" + (index+1) + " " + pokemon.info.nickname , value : body , inline: true };
+				});
+				var embed = new Discord.MessageEmbed()
+					.setColor('#ee1515')
+					.setTitle('Party Data')
+					.addFields( partyData )
+					.setTimestamp()
+					.setFooter('Displays party data.');
+
+				message.channel.send( embed );
+			} else {
+				pokeslot = parseInt(words[1]);
+				if ( [1,2,3,4,5,6].includes( pokeslot ) )
+				{
+					pokemon = gameData.partyPokemon[ pokeslot - 1 ];
+					var body_1 = pokemon.info.species_name + " lvl " + pokemon.stats.level;
+					var body_2 = pokemon.stats.currentHP + "/" + pokemon.stats.totalHP + " HP";
+					var body = body_1 + "\n" + body_2;
+					var moveData = pokemon.moves.map( ( move ) => {
+						if ( move.name != "" ) {
+							return { name : move.name , value: "PP: " + move.pp , inline : true }
+						} else {
+							return { name : "No move learned" , value: "Empty slot" , inline : true }
+						}
+					});
+					moveData.splice( 2 , 0 , { name: '\u200B', value: '\u200B' , inline : true } );
+					moveData.push( { name: '\u200B', value: '\u200B' , inline : true } );
+
+					var embed = new Discord.MessageEmbed()
+						.setColor('#ee1515')
+						.setTitle('#' + pokeslot + " " + pokemon.info.nickname)
+						.setDescription( body )
+						.addFields( moveData )
+						.setTimestamp()
+						.setFooter('Displays Pokemon data.');
+
+					message.channel.send( embed );
+				}
+				else
+				{
+					message.channel.send("Invalid slot.  Choose a pokemon slot between 1 and 6, inclusive.");
+				}
+			}
+		}
+
 		if ( m.startsWith( "--HELP" ) ) {
 			var embed = new Discord.MessageEmbed()
 				.setColor('#ee1515')
@@ -270,7 +328,7 @@ client.on('message', message => {
 				.setDescription('Discord Plays Pokemon allows for users in a Discord channel to send inputs to a GBA emulator, and the output is rendered on a web server.')
 				.addFields(
 					{ name: 'GBA Inputs', value: Object.keys( legal_buttons ).join( "\n" ) , inline: true },
-					{ name: 'Commands', value: '--SAVE\n--LOAD\n--INFO\n--HELP', inline: true },
+					{ name: 'Commands', value: '--PARTY\n--SAVE\n--LOAD\n--INFO\n--HELP', inline: true },
 				)
 				.setTimestamp()
 				.setFooter('Made by Alex, Anoop, and David.');

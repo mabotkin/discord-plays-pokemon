@@ -1,3 +1,6 @@
+var pokemon_index = require('./lookup/pokemon.js').pokemon_index;
+var moves_index = require('./lookup/moves.js').moves_index;
+
 class MemoryConfig {
     // Stores relevant memory addresses for a particular game
 
@@ -44,34 +47,37 @@ class MemoryReader {
 		// https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)
 		var pokemon = {};
 		var mem = this.gba.mmu;
+		pokemon.misc = {};
+		pokemon.stats = {};
+		pokemon.info = {};
 		pokemon.personality_value = this.loadU32( mem , address );
 		pokemon.OTID = this.loadU32( mem , address + 4 );
 		var nickname = "";
 		for ( var i = 0 ; i < 10 ; i++ ) {
 			nickname += this.hexToChar( mem.loadU8( address + 8 + i ) );
 		}
-		pokemon.nickname = nickname;
-		pokemon.language = this.languageParser( mem.loadU16( address + 18 ) );
+		pokemon.info.nickname = nickname;
+		pokemon.misc.language = this.languageParser( mem.loadU16( address + 18 ) );
 		var OTname = "";
 		for ( var i = 0 ; i < 7 ; i++ ) {
 			OTname += this.hexToChar( mem.loadU8( address + 20 + i ) );
 		}
 		pokemon.OTname = OTname;
-		pokemon.markings = mem.loadU8( address + 27 );
-		pokemon.checksum = mem.loadU16( address + 28 );
+		pokemon.misc.markings = mem.loadU8( address + 27 );
+		pokemon.misc.checksum = mem.loadU16( address + 28 );
 		// DATA HERE
 		this.parseSubstructureData( address + 32 , pokemon , mem );
 		// STATUS CONDITION HERE
 		//
-		pokemon.level = mem.loadU8( address + 84 );
-		pokemon.pokerus = mem.loadU8( address + 85 );
-		pokemon.currentHP = mem.loadU16( address + 86 );
-		pokemon.totalHP = mem.loadU16( address + 88 );
-		pokemon.attack = mem.loadU16( address + 90 );
-		pokemon.defense = mem.loadU16( address + 92 );
-		pokemon.speed = mem.loadU16( address + 94 );
-		pokemon.sp_attack = mem.loadU16( address + 96 );
-		pokemon.sp_defense  = mem.loadU16( address + 98 );
+		pokemon.stats.level = mem.loadU8( address + 84 );
+		pokemon.misc.pokerus = mem.loadU8( address + 85 );
+		pokemon.stats.currentHP = mem.loadU16( address + 86 );
+		pokemon.stats.totalHP = mem.loadU16( address + 88 );
+		pokemon.stats.attack = mem.loadU16( address + 90 );
+		pokemon.stats.defense = mem.loadU16( address + 92 );
+		pokemon.stats.speed = mem.loadU16( address + 94 );
+		pokemon.stats.sp_attack = mem.loadU16( address + 96 );
+		pokemon.stats.sp_defense  = mem.loadU16( address + 98 );
 
 		return pokemon;
 	}
@@ -91,11 +97,12 @@ class MemoryReader {
 			var second_four = this.loadU32( mem , block_address + 4 ) ^ decryption_key;
 			var third_four = this.loadU32( mem , block_address + 8 ) ^ decryption_key;
 			if ( order[ i ] == "G" ) {
-				pokemon.species = ( first_four & 0x0000ffff );
-				pokemon.item = ( first_four & 0xffff0000 ) >> 16;
-				pokemon.exp = second_four;
-				pokemon.pp_bonuses = ( third_four & 0x000000ff );
-				pokemon.friendship = ( third_four & 0x0000ff00 ) >> 8;
+				pokemon.info.species = ( first_four & 0x0000ffff );
+				pokemon.info.species_name = pokemon_index[ pokemon.info.species ];
+				pokemon.stats.item = ( first_four & 0xffff0000 ) >> 16;
+				pokemon.stats.exp = second_four;
+				pokemon.stats.pp_bonuses = ( third_four & 0x000000ff );
+				pokemon.stats.friendship = ( third_four & 0x0000ff00 ) >> 8;
 			} else if ( order[ i ] == "A" ) {
 				var move1 = ( first_four & 0x0000ffff );
 				var move2 = ( first_four & 0xffff0000 ) >> 16;
@@ -106,10 +113,10 @@ class MemoryReader {
 				var pp3 = ( third_four & 0x00ff0000 ) >> 16;
 				var pp4 = ( third_four & 0xff000000 ) >> 24;
 				pokemon.moves = [];
-				pokemon.moves.push( { id : move1 , pp : pp1 } );
-				pokemon.moves.push( { id : move2 , pp : pp2 } );
-				pokemon.moves.push( { id : move3 , pp : pp3 } );
-				pokemon.moves.push( { id : move4 , pp : pp4 } );
+				pokemon.moves.push( { name : moves_index[ move1 ] , id : move1 , pp : pp1 } );
+				pokemon.moves.push( { name : moves_index[ move2 ] , id : move2 , pp : pp2 } );
+				pokemon.moves.push( { name : moves_index[ move3 ] , id : move3 , pp : pp3 } );
+				pokemon.moves.push( { name : moves_index[ move4 ] , id : move4 , pp : pp4 } );
 			} else if ( order[ i ] == "E" ) {
 				pokemon.EVs = {};
 				pokemon.conditions = {};
@@ -127,11 +134,11 @@ class MemoryReader {
 				pokemon.conditions.feel = ( third_four & 0xff000000 ) >> 24;
 			} else if ( order[ i ] == "M" ) {
 				// TODO: parse more thoroughly
-				pokemon.pokerus_status = ( first_four & 0x000000ff );
-				pokemon.met_location = ( first_four & 0x0000ff00 ) >> 8;
-				pokemon.origins_info = ( first_four & 0xffff0000 ) >> 16;
-				pokemon.iv_egg_ability = second_four;
-				pokemon.ribbons_obedience = third_four;
+				pokemon.misc.pokerus_status = ( first_four & 0x000000ff );
+				pokemon.misc.met_location = ( first_four & 0x0000ff00 ) >> 8;
+				pokemon.misc.origins_info = ( first_four & 0xffff0000 ) >> 16;
+				pokemon.misc.iv_egg_ability = second_four;
+				pokemon.misc.ribbons_obedience = third_four;
 			}
 		}
 	}
@@ -168,7 +175,8 @@ class MemoryReader {
 			171 : "!",
 			172 : "?",
 			173 : ".",
-			174 : "-"
+			174 : "-",
+			255 : ""
 		};
 		if ( num >= 187 && num <= 212 ) {
 			return String.fromCharCode( num - 187 + 65 );
