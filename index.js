@@ -9,7 +9,7 @@ var fs = require('fs');
 var Discord = require('discord.js');
 var GameBoyAdvance = require('gbajs');
 
-var gba_yukky = require('./public/gba_yukky.js');
+var gba_yukky = require('./gba_yukky.js');
 var pokemonMemory= require("./MemoryReader.js");
 
 require("dotenv").config();
