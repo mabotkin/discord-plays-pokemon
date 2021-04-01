@@ -5,38 +5,44 @@ class MemoryReader {
 		this.memconfig = memconfig;
 	}
 
+	loadU32( mem , address ) {
+		var ans = mem.load32( address );
+		if ( ans < 0 ) { ans += 2**32; }
+		return ans;
+	}
+
 	parsePokemon( address ) {
 		// https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)
 		var pokemon = {};
 		var mem = this.gba.mmu;
-		pokemon.personality_value = mem.load32( address );
-		pokemon.OTID = mem.load32( address + 4 );
+		pokemon.personality_value = this.loadU32( mem , address );
+		pokemon.OTID = this.loadU32( mem , address + 4 );
 		var nickname = "";
 		for ( var i = 0 ; i < 10 ; i++ ) {
-			nickname += this.hexToChar( mem.load8( address + 8 + i ) );
+			nickname += this.hexToChar( mem.loadU8( address + 8 + i ) );
 		}
 		pokemon.nickname = nickname;
-		pokemon.language = this.languageParser( mem.load16( address + 18 ) );
+		pokemon.language = this.languageParser( mem.loadU16( address + 18 ) );
 		var OTname = "";
 		for ( var i = 0 ; i < 7 ; i++ ) {
-			OTname += this.hexToChar( mem.load8( address + 20 + i ) );
+			OTname += this.hexToChar( mem.loadU8( address + 20 + i ) );
 		}
 		pokemon.OTname = OTname;
-		pokemon.markings = mem.load8( address + 27 );
-		pokemon.checksum = mem.load16( address + 28 );
+		pokemon.markings = mem.loadU8( address + 27 );
+		pokemon.checksum = mem.loadU16( address + 28 );
 		// DATA HERE
-		parseSubstructureData( address + 32 , pokemon , mem );
+		this.parseSubstructureData( address + 32 , pokemon , mem );
 		// STATUS CONDITION HERE
 		//
-		pokemon.level = mem.load8( address + 84 );
-		pokemon.pokerus = mem.load8( address + 85 );
-		pokemon.currentHP = mem.load16( address + 86 );
-		pokemon.totalHP = mem.load16( address + 88 );
-		pokemon.attack = mem.load16( address + 90 );
-		pokemon.defense = mem.load16( address + 92 );
-		pokemon.speed = mem.load16( address + 94 );
-		pokemon.sp_attack = mem.load16( address + 96 );
-		pokemon.sp_defense  = mem.load16( address + 98 );
+		pokemon.level = mem.loadU8( address + 84 );
+		pokemon.pokerus = mem.loadU8( address + 85 );
+		pokemon.currentHP = mem.loadU16( address + 86 );
+		pokemon.totalHP = mem.loadU16( address + 88 );
+		pokemon.attack = mem.loadU16( address + 90 );
+		pokemon.defense = mem.loadU16( address + 92 );
+		pokemon.speed = mem.loadU16( address + 94 );
+		pokemon.sp_attack = mem.loadU16( address + 96 );
+		pokemon.sp_defense  = mem.loadU16( address + 98 );
 
 		return pokemon;
 	}
@@ -49,12 +55,12 @@ class MemoryReader {
 			"MGAE", "MGEA", "MAGE", "MAEG", "MEGA", "MEAG"
 		];
 		var decryption_key = pokemon.personality_value ^ pokemon.OTID;
-		var order = substructure_order[ ( ( personality_value % 24 ) + 24 ) % 24 ];
+		var order = substructure_order[ ( ( pokemon.personality_value % 24 ) + 24 ) % 24 ];
 		for ( var i = 0 ; i < 4 ; i++ ) {
 			var block_address = address + 12*i;
-			var first_four = mem.load32( block_address ) ^ decryption_key;
-			var second_four = mem.load32( block_address + 4 ) ^ decryption_key;
-			var third_four = mem.load32( block_address + 8 ) ^ decryption_key;
+			var first_four = this.loadU32( mem , block_address ) ^ decryption_key;
+			var second_four = this.loadU32( mem , block_address + 4 ) ^ decryption_key;
+			var third_four = this.loadU32( mem , block_address + 8 ) ^ decryption_key;
 			if ( order[ i ] == "G" ) {
 				pokemon.species = ( first_four & 0x0000ffff );
 				pokemon.item = ( first_four & 0xffff0000 ) >> 16;
@@ -75,7 +81,7 @@ class MemoryReader {
 				pokemon.moves.push( { id : move2 , pp : pp2 } );
 				pokemon.moves.push( { id : move3 , pp : pp3 } );
 				pokemon.moves.push( { id : move4 , pp : pp4 } );
-			} else if ( order[ i ] == "M" ) {
+			} else if ( order[ i ] == "E" ) {
 				pokemon.EVs = {};
 				pokemon.conditions = {};
 				pokemon.EVs.HP = ( first_four & 0x000000ff );
@@ -90,8 +96,8 @@ class MemoryReader {
 				pokemon.conditions.smartness = ( third_four & 0x0000ff00 ) >> 8;
 				pokemon.conditions.toughness = ( third_four & 0x00ff0000 ) >> 16;
 				pokemon.conditions.feel = ( third_four & 0xff000000 ) >> 24;
-			} else if ( order[ i ] == "E" ) {
-				// TODO: parse more cleanly
+			} else if ( order[ i ] == "M" ) {
+				// TODO: parse more thoroughly
 				pokemon.pokerus_status = ( first_four & 0x000000ff );
 				pokemon.met_location = ( first_four & 0x0000ff00 ) >> 8;
 				pokemon.origins_info = ( first_four & 0xffff0000 ) >> 16;
