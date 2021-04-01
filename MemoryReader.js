@@ -1,3 +1,16 @@
+class MemoryConfig {
+    // Stores relevant memory addresses for a particular game
+
+    constructor() {
+        this.partyPokemonAddress = 0x02024284;
+        this.enemyPokemonAddress = 0x0202402C;
+    }
+
+    // Load a memory config object from a config file
+    loadFromFile( configFile ) {
+    }
+}
+
 class MemoryReader {
 
 	constructor( gba , memconfig, gen=3 ) {
@@ -5,6 +18,22 @@ class MemoryReader {
 		this.memconfig = memconfig;
 		if ( gen != 3 ) { throw "Only Generation 3 memory format is currently supported."; }
 	}
+
+    // Returns a beegData object containing all relevant information
+    getAllData() {
+        var beegData = {};
+
+        beegData.partyPokemon = this.getPartyPokemonData( this.memconfig.partyPokemonAddress );
+
+        return beegData;
+    }
+
+    // Returns a Party object
+    getPartyPokemonData( address ) {
+        return [...Array(6).keys()]
+            .map( i => address + i * 100 )
+            .map( address => this.parsePokemon( address ) );
+    }
 
 	parsePokemon( address ) {
 		// https://bulbapedia.bulbagarden.net/wiki/Pok%C3%A9mon_data_structure_(Generation_III)
@@ -90,4 +119,7 @@ class MemoryReader {
 	}
 }
 
-module.exports = MemoryReader
+module.exports = {
+    MemoryConfig: MemoryConfig,
+    MemoryReader: MemoryReader
+}

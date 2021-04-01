@@ -8,7 +8,9 @@ var io = require('socket.io').listen(http, {
 var fs = require('fs');
 var Discord = require('discord.js');
 var GameBoyAdvance = require('gbajs');
+
 var gba_yukky = require('./public/gba_yukky.js');
+var pokemonMemory= require("./MemoryReader.js");
 
 require("dotenv").config();
 var ANONYMOUS_MODE = ( process.env.ANONYMOUS_MODE == "1" );
@@ -110,10 +112,10 @@ function loadRom( save_index ) {
 
 loadRom( current_save_index );
 
-var MemoryReader = require("./MemoryReader.js");
-var mr = new MemoryReader( gba , "" );
+var config = new pokemonMemory.MemoryConfig();
+var mr = new pokemonMemory.MemoryReader( gba , config );
 setInterval( function() {
-	console.log( mr.parsePokemon( 0x02024284 ) );
+	console.log( mr.getAllData() );
 }, 1000 );
 
 app.use(express.static('public'))
