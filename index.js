@@ -110,6 +110,12 @@ function loadRom( save_index ) {
 
 loadRom( current_save_index );
 
+var MemoryReader = require("./MemoryReader.js");
+var mr = new MemoryReader( gba , "" );
+setInterval( function() {
+	console.log( mr.parsePokemon( 0x02024284 ) );
+}, 1000 );
+
 app.use(express.static('public'))
 
 http.listen(PORT , function () {
