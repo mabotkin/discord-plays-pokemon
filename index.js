@@ -81,9 +81,11 @@ io.on('connection', (socket) => {
     });
 
     connected_addresses.push( address );
-	io.emit( "viewers" , connected_addresses.length );
     //console.log("connected addresses: ", connected_addresses);
     
+
+	io.emit( "gameData" , gameData );
+	io.emit( "viewers" , connected_addresses.length );
 	pngToDataURL( gba.screenshot() , true );
 });
 
@@ -119,7 +121,7 @@ var gameData = undefined;
 setInterval( function() {
 	gameData = mr.getAllData();
 	if ( JSON.stringify( prevGameData ) != JSON.stringify( gameData ) ) {
-		io.emit("gameData" , gameData );
+		io.emit( "gameData" , gameData );
 		prevGameData = gameData;
 	}
 }, 1000 );
