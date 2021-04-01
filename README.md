@@ -48,7 +48,8 @@ The following are features that we hope to add in the future:
 
 - [x] Allow multiple savestates.
 - [x] Limit to one connection per IP, to save bandwidth.
-- [ ] Deep integration to pull game data from RAM.
+- [x] Deep integration to pull game data from RAM.
+- [ ] Display deep integration party data on front-end in real time.
 - [ ] Make front-end pretty.
 - [ ] Autosave functionality.
 - [ ] Make repeated button presses easier (i.e., `A*10`).

@@ -119,7 +119,7 @@ var gameData = undefined;
 setInterval( function() {
 	gameData = mr.getAllData();
 	if ( JSON.stringify( prevGameData ) != JSON.stringify( gameData ) ) {
-		//io.emit("gameData" , gameData );
+		io.emit("gameData" , gameData );
 		prevGameData = gameData;
 	}
 }, 1000 );
@@ -277,6 +277,9 @@ client.on('message', message => {
 					var body = body_1 + "\n" + body_2;
 					return { name: "#" + (index+1) + " " + pokemon.info.nickname , value : body , inline: true };
 				});
+				while ( partyData.length < 6 ) {
+					partyData.push( { name: '\u200B', value: '\u200B' , inline : true } )
+				}
 				var embed = new Discord.MessageEmbed()
 					.setColor('#ee1515')
 					.setTitle('Party Data')
@@ -287,7 +290,7 @@ client.on('message', message => {
 				message.channel.send( embed );
 			} else {
 				pokeslot = parseInt(words[1]);
-				if ( [1,2,3,4,5,6].includes( pokeslot ) )
+				if ( [...Array( gameData.partyPokemon.length ).keys()].map( (x) => { return x+1 } ).includes( pokeslot ) )
 				{
 					pokemon = gameData.partyPokemon[ pokeslot - 1 ];
 					var body_1 = pokemon.info.species_name + " lvl " + pokemon.stats.level;
@@ -315,7 +318,7 @@ client.on('message', message => {
 				}
 				else
 				{
-					message.channel.send("Invalid slot.  Choose a pokemon slot between 1 and 6, inclusive.");
+					message.channel.send("Invalid slot.  Choose a pokemon slot that exists.");
 				}
 			}
 		}

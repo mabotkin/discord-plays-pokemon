@@ -36,11 +36,17 @@ class MemoryReader {
         return beegData;
     }
 
+	// check if pokemon is really the zero pokemon
+	isNotZeroPokemon( pokemon ) {
+		return pokemon.info.species != 0;
+	}
+
     // Returns a Party object
     getPartyPokemonData( address ) {
         return [...Array(6).keys()]
             .map( i => address + i * 100 )
-            .map( address => this.parsePokemon( address ) );
+            .map( address => this.parsePokemon( address ) )
+			.filter( this.isNotZeroPokemon );
     }
 
 	parsePokemon( address ) {
