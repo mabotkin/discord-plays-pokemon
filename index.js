@@ -19,7 +19,9 @@ var DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 var DISCORD_GUILD_ID = parseInt( process.env.DISCORD_GUILD_ID );
 var DISCORD_CHANNEL_ID = parseInt( process.env.DISCORD_CHANNEL_ID );
 var FRAMERATE = Math.min(Math.max( parseInt( process.env.FRAMERATE ), 1 ), 60 );
+var MAX_REPEAT = parseInt( process.env.MAX_REPEAT );
 var PORT = parseInt( process.env.PORT );
+var REPEATED_KEYPRESS_DELAY = parseInt( process.env.REPEATED_KEYPRESS_DELAY );
 var ROMNAME = process.env.ROM_NAME;
 var SAVE_DIR = process.env.SAVE_DIR;
 
@@ -160,6 +162,35 @@ var legal_buttons = {
 	"LT" : keypad.L
 }
 
+function moveParser( m , keypad , message ) {
+	var words = m.split( "*" );
+	if ( words.length == 2 ) {
+		var button = words[0].trim().toUpperCase();
+		var repeat = parseInt( words[1] );
+		if ( ( button in legal_buttons ) && ( !isNaN( repeat ) ) ) {
+			repeat = Math.max( 1 , Math.min ( MAX_REPEAT , repeat ) );
+			message.channel.send( "Executing command " + button + " " + repeat + " time(s)..." );
+			for ( var i = 0 ; i < repeat ; i++ ) {
+				setTimeout( function() {
+					keypad.press( legal_buttons[ button ] );
+				}, i * REPEATED_KEYPRESS_DELAY );
+			}
+			setTimeout( function() {
+				message.channel.send( "Executed command " + button + " " + repeat + " time(s)." );
+			} , REPEATED_KEYPRESS_DELAY * (repeat - 1) );
+			var displayMessage = { "author" : message.author.username , "input" : button + " * " + repeat }
+			if ( ANONYMOUS_MODE ) {
+				displayMessage = { "author" : "" , "input" : button + " * " + repeat }
+			}
+			io.emit( "input" , displayMessage );
+			return true;
+		} else {
+			message.channel.send("Illegal repeat command, please try again.");
+		}
+	}
+	return false;
+}
+
 client.on('message', message => {
 	if ( message.guild == DISCORD_GUILD_ID && message.channel == DISCORD_CHANNEL_ID )
 	{
@@ -173,6 +204,8 @@ client.on('message', message => {
 			}
 			io.emit( "input" , displayMessage );
 		}
+
+		moveParser( m , keypad , message );
 
 		if ( m.startsWith( "--SAVE" ) ) {
 			var words = m.split( " " );
