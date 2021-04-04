@@ -61,8 +61,8 @@ function pngToDataURL( png , override=false ) {
 }
 
 io.on('connection', (socket) => {
-    var address = socket.request.connection.remoteAddress;
-    //var address = socket.handshake.headers['x-forwarded-for'].split(',')[0];
+    //var address = socket.request.connection.remoteAddress;
+    var address = socket.handshake.headers['x-forwarded-for'].split(',')[0];
     if ( connected_addresses.includes( address ) ) {
         socket.disconnect();
         return;
