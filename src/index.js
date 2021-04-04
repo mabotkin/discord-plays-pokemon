@@ -131,7 +131,8 @@ setInterval( function() {
 	}
 }, 1000 );
 
-app.use(express.static('public'))
+// this kinda sucks
+app.use(express.static('./src/public'))
 
 http.listen(PORT , function () {
 	console.log('Discord Plays Pokemon running on port ' + PORT + '.');
@@ -338,15 +339,6 @@ client.on('message', message => {
                 message.channel.send( embed );
             }
         } else {
-            if ( m in legal_buttons ) {
-                action_queue.push( legal_buttons[ m ] );
-                var displayMessage = { "author" : message.author.username , "input" : m }
-                if ( ANONYMOUS_MODE ) {
-                    displayMessage = { "author" : "" , "input" : m }
-                }
-                io.emit( "input" , displayMessage );
-            }
-
             var {messages, actions} = getActions( m , legal_buttons );
             actionQueue.addActions( actions, messages, message.author.username );
         }
