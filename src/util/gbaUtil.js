@@ -64,7 +64,20 @@ function encodeBase64( view ) {
     return data.join('');
 };
 
+function save( gba, file ) {
+    console.log("save called to file: ", file);
+	var data = gba_yukky.encodeBase64(gba.mmu.save.view);
+	fs.writeFileSync( file, data , "utf8" );
+}
+
+function load( gba, file ) {
+    console.log("load called to file: ", file);
+	var data = fs.readFileSync( file , "utf8" );
+	gba.setSavedata( gba_yukky.decodeBase64( data ) );
+	gba.runStable();
+}
+
 module.exports = {
-   decodeBase64,
-   encodeBase64
+    save,
+    load
 }

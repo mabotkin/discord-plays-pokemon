@@ -23,6 +23,12 @@
     "fs": "*",
     "gbajs": "^1.1.2",
     "http": "*",
+    "module-alias": "^2.2.2",
     "socketio": "^1.0.0"
+  },
+  "_moduleAliases": {
+      "@root" : ".",
+      "@src"  : "./src/",
+      "@util" : "./src/util/"
   }
 }
