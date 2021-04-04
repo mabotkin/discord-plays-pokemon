@@ -143,17 +143,18 @@ const messageToActions = ( m , legal_buttons ) => {
 
 const getActions = ( m , legal_buttons ) => {
     var messageTokens = messageTokenizer( m , legal_buttons );
-    // console.log("message tokens: ", messageTokens);
+     //console.log("message tokens: ", messageTokens);
     var expandedM = messageExpander( messageTokens , legal_buttons );
-    // console.log("expanded m: ", expandedM);
+     //console.log("expanded m: ", expandedM);
     var actions = messageToActions( expandedM , legal_buttons );
-    // console.log("actions: ", actions);
+     //console.log("actions: ", actions);
     return {
         messages: expandedM, 
         actions: actions
     };
 }
 
+/*
 var legal_buttons = {
 	"A" : "keypad.A",
 	"B" : "keypad.B",
@@ -174,6 +175,7 @@ var legal_buttons = {
 	"RT" : "keypad.R",
 	"LT" : "keypad.L"
 };
+*/
 
 
 // Tests
