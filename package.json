@@ -27,8 +27,8 @@
     "socketio": "^1.0.0"
   },
   "_moduleAliases": {
-      "@root" : ".",
-      "@src"  : "./src/",
-      "@util" : "./src/util/"
+    "@root": ".",
+    "@src": "./src/",
+    "@util": "./src/util/"
   }
 }
