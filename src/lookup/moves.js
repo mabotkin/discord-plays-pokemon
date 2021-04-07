@@ -353,5 +353,5 @@ exports.moves_index = [
 "Shock Wave",
 "Water Pulse",
 "Doom Desire",
-"Psycho Boost",
+"Psycho Boost"
 ];

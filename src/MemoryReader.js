@@ -1,5 +1,6 @@
 var pokemon_index = require('./lookup/pokemon.js').pokemon_index;
 var moves_index = require('./lookup/moves.js').moves_index;
+var locations_index = require('./lookup/locations.js').locations_index;
 
 class MemoryConfig {
     // Stores relevant memory addresses for a particular game
@@ -57,7 +58,8 @@ class MemoryReader {
 		pokemon.stats = {};
 		pokemon.info = {};
 		pokemon.personality_value = this.loadU32( mem , address );
-		pokemon.OTID = this.loadU32( mem , address + 4 );
+		pokemon.OT = {};
+		pokemon.OT.OTID = this.loadU32( mem , address + 4 );
 		var nickname = "";
 		for ( var i = 0 ; i < 10 ; i++ ) {
 			nickname += this.hexToChar( mem.loadU8( address + 8 + i ) );
@@ -68,7 +70,7 @@ class MemoryReader {
 		for ( var i = 0 ; i < 7 ; i++ ) {
 			OTname += this.hexToChar( mem.loadU8( address + 20 + i ) );
 		}
-		pokemon.OTname = OTname;
+		pokemon.OT.OTname = OTname;
 		pokemon.misc.markings = mem.loadU8( address + 27 );
 		pokemon.misc.checksum = mem.loadU16( address + 28 );
 		// DATA HERE
@@ -77,14 +79,14 @@ class MemoryReader {
 		pokemon.stats.status = {};
 		var status_byte = mem.loadU8( address + 80 );
 		pokemon.stats.status.sleep = ( status_byte & 0x07 );
-		pokemon.stats.status.poison = ( ( ( status_byte & 0x08 ) >> 3 ) == 1 );
-		pokemon.stats.status.burn = ( ( ( status_byte & 0x10 ) >> 4 ) == 1 );
-		pokemon.stats.status.freeze = ( ( ( status_byte & 0x20 ) >> 5 ) == 1 );
-		pokemon.stats.status.paralysis = ( ( ( status_byte & 0x40 ) >> 6 ) == 1 );
-		pokemon.stats.status.bad_poison = ( ( ( status_byte & 0x80 ) >> 7 ) == 1 );
+		pokemon.stats.status.poison = ( ( ( status_byte & 0x08 ) >>> 3 ) == 1 );
+		pokemon.stats.status.burn = ( ( ( status_byte & 0x10 ) >>> 4 ) == 1 );
+		pokemon.stats.status.freeze = ( ( ( status_byte & 0x20 ) >>> 5 ) == 1 );
+		pokemon.stats.status.paralysis = ( ( ( status_byte & 0x40 ) >>> 6 ) == 1 );
+		pokemon.stats.status.bad_poison = ( ( ( status_byte & 0x80 ) >>> 7 ) == 1 );
 		//
 		pokemon.stats.level = mem.loadU8( address + 84 );
-		pokemon.misc.pokerus = mem.loadU8( address + 85 );
+		pokemon.misc.pokerus.remaining = mem.loadU8( address + 85 );
 		pokemon.stats.currentHP = mem.loadU16( address + 86 );
 		pokemon.stats.totalHP = mem.loadU16( address + 88 );
 		pokemon.stats.attack = mem.loadU16( address + 90 );
@@ -103,8 +105,9 @@ class MemoryReader {
 			"EGAM", "EGMA", "EAGM", "EAMG", "EMGA", "EMAG",
 			"MGAE", "MGEA", "MAGE", "MAEG", "MEGA", "MEAG"
 		];
-		var decryption_key = pokemon.personality_value ^ pokemon.OTID;
+		var decryption_key = pokemon.personality_value ^ pokemon.OT.OTID;
 		var order = substructure_order[ ( ( pokemon.personality_value % 24 ) + 24 ) % 24 ];
+		var pp_bonus_cache = [];
 		for ( var i = 0 ; i < 4 ; i++ ) {
 			var block_address = address + 12*i;
 			var first_four = this.loadU32( mem , block_address ) ^ decryption_key;
@@ -113,19 +116,23 @@ class MemoryReader {
 			if ( order[ i ] == "G" ) {
 				pokemon.info.species = ( first_four & 0x0000ffff );
 				pokemon.info.species_name = pokemon_index[ pokemon.info.species ];
-				pokemon.stats.item = ( first_four & 0xffff0000 ) >> 16;
+				pokemon.stats.item = ( first_four & 0xffff0000 ) >>> 16;
 				pokemon.stats.exp = second_four;
-				pokemon.stats.pp_bonuses = ( third_four & 0x000000ff );
-				pokemon.stats.friendship = ( third_four & 0x0000ff00 ) >> 8;
+				var pp_bonuses = ( third_four & 0x000000ff );
+				pp_bonus_cache.push( pp_bonuses & 0x03 );
+				pp_bonus_cache.push( ( pp_bonuses & 0x0C ) >>> 2 );
+				pp_bonus_cache.push( ( pp_bonuses & 0x30 ) >>> 4 );
+				pp_bonus_cache.push( ( pp_bonuses & 0xC0 ) >>> 6 );
+				pokemon.stats.friendship = ( third_four & 0x0000ff00 ) >>> 8;
 			} else if ( order[ i ] == "A" ) {
 				var move1 = ( first_four & 0x0000ffff );
-				var move2 = ( first_four & 0xffff0000 ) >> 16;
+				var move2 = ( first_four & 0xffff0000 ) >>> 16;
 				var move3 = ( second_four & 0x0000ffff );
-				var move4 = ( second_four & 0xffff0000 ) >> 16;
+				var move4 = ( second_four & 0xffff0000 ) >>> 16;
 				var pp1 = ( third_four & 0x000000ff );
-				var pp2 = ( third_four & 0x0000ff00 ) >> 8;
-				var pp3 = ( third_four & 0x00ff0000 ) >> 16;
-				var pp4 = ( third_four & 0xff000000 ) >> 24;
+				var pp2 = ( third_four & 0x0000ff00 ) >>> 8;
+				var pp3 = ( third_four & 0x00ff0000 ) >>> 16;
+				var pp4 = ( third_four & 0xff000000 ) >>> 24;
 				pokemon.moves = [];
 				pokemon.moves.push( { name : moves_index[ move1 ] , id : move1 , pp : pp1 } );
 				pokemon.moves.push( { name : moves_index[ move2 ] , id : move2 , pp : pp2 } );
@@ -135,25 +142,122 @@ class MemoryReader {
 				pokemon.EVs = {};
 				pokemon.conditions = {};
 				pokemon.EVs.HP = ( first_four & 0x000000ff );
-				pokemon.EVs.attack = ( first_four & 0x0000ff00 ) >> 8;
-				pokemon.EVs.defense = ( first_four & 0x00ff0000 ) >> 16;
-				pokemon.EVs.speed = ( first_four & 0xff000000 ) >> 24;
+				pokemon.EVs.attack = ( first_four & 0x0000ff00 ) >>> 8;
+				pokemon.EVs.defense = ( first_four & 0x00ff0000 ) >>> 16;
+				pokemon.EVs.speed = ( first_four & 0xff000000 ) >>> 24;
 				pokemon.EVs.sp_attack = ( second_four & 0x000000ff );
-				pokemon.EVs.sp_defense = ( second_four & 0x0000ff00 ) >> 8;
-				pokemon.conditions.coolness = ( second_four & 0x00ff0000 ) >> 16;
-				pokemon.conditions.beauty = ( second_four & 0xff000000 ) >> 24;
+				pokemon.EVs.sp_defense = ( second_four & 0x0000ff00 ) >>> 8;
+				pokemon.conditions.coolness = ( second_four & 0x00ff0000 ) >>> 16;
+				pokemon.conditions.beauty = ( second_four & 0xff000000 ) >>> 24;
 				pokemon.conditions.cuteness = ( third_four & 0x000000ff );
-				pokemon.conditions.smartness = ( third_four & 0x0000ff00 ) >> 8;
-				pokemon.conditions.toughness = ( third_four & 0x00ff0000 ) >> 16;
-				pokemon.conditions.feel = ( third_four & 0xff000000 ) >> 24;
+				pokemon.conditions.smartness = ( third_four & 0x0000ff00 ) >>> 8;
+				pokemon.conditions.toughness = ( third_four & 0x00ff0000 ) >>> 16;
+				pokemon.conditions.feel = ( third_four & 0xff000000 ) >>> 24;
 			} else if ( order[ i ] == "M" ) {
 				// TODO: parse more thoroughly
-				pokemon.misc.pokerus_status = ( first_four & 0x000000ff );
-				pokemon.misc.met_location = ( first_four & 0x0000ff00 ) >> 8;
-				pokemon.misc.origins_info = ( first_four & 0xffff0000 ) >> 16;
-				pokemon.misc.iv_egg_ability = second_four;
-				pokemon.misc.ribbons_obedience = third_four;
+				var pokerus_status = ( first_four & 0x000000ff );
+				pokemon.misc.pokerus = {};
+				pokemon.misc.pokerus.days_until_cured = ( pokerus_status & 0x0f );
+				pokemon.misc.pokerus.strain = ( pokerus_status & 0xf0 ) >>> 4;
+				pokemon.misc.met_location = ( first_four & 0x0000ff00 ) >>> 8 ;
+				pokemon.misc.met_location_name = locations_index[ pokemon.misc.met_location ];
+				//
+				var origins_info = ( first_four & 0xffff0000 ) >>> 16;
+				pokemon.misc.origins = {};
+				pokemon.misc.origins.level_met = ( origins_info & 0x007F );
+				pokemon.misc.origins.game_of_origin = this.gameOfOrigin( ( origins_info & 0x0780 ) >>> 7  );
+				pokemon.misc.origins.pokeball = this.pokeballLookup( ( origins_info & 0x7800 ) >>> 11  );
+				pokemon.OT.gender = ( ( ( origins_info & 0x8000 ) >>> 15 ) ? "Female" : "Male" );
+				//
+				var iv_egg_ability = second_four;
+				pokemon.IVs = {};
+				pokemon.IVs.HP = ( iv_egg_ability & 0x0000001F );
+				pokemon.IVs.attack = ( iv_egg_ability & 0x000003E0 ) >>> 5;
+				pokemon.IVs.defense = ( iv_egg_ability & 0x00007C00 ) >>> 10;
+				pokemon.IVs.speed = ( iv_egg_ability & 0x000F8000 ) >>> 15;
+				pokemon.IVs.sp_attack = ( iv_egg_ability & 0x01F00000 ) >>> 20;
+				pokemon.IVs.sp_defense = ( iv_egg_ability & 0x3E000000 ) >>> 25;
+				pokemon.misc.is_egg = ( ( iv_egg_ability & 0x40000000 ) >>> 30 ) == 1;
+				pokemon.misc.ability = ( ( iv_egg_ability & 0x80000000 ) >>> 31 ) + 1;
+				//
+				var ribbons_obedience = third_four;
+				pokemon.ribbons = {};
+				pokemon.ribbons.cool = this.ribbonLookup( ribbons_obedience & 0x00000007 );
+				pokemon.ribbons.beauty = this.ribbonLookup( ( ribbons_obedience & 0x00000038 ) >>> 3 );
+				pokemon.ribbons.cute = this.ribbonLookup( ( ribbons_obedience & 0x000001C0 ) >>> 6 );
+				pokemon.ribbons.smart = this.ribbonLookup( ( ribbons_obedience & 0x00000E00 ) >>> 9 );
+				pokemon.ribbons.tough = this.ribbonLookup( ( ribbons_obedience & 0x00007000 ) >>> 12 );
+				pokemon.ribbons.champion = !!( ( ribbons_obedience & 0x00008000 ) >>> 15 );
+				pokemon.ribbons.winning = !!( ( ribbons_obedience & 0x00010000 ) >>> 16 );
+				pokemon.ribbons.victory = !!( ( ribbons_obedience & 0x00020000 ) >>> 17 );
+				pokemon.ribbons.artist = !!( ( ribbons_obedience & 0x00040000 ) >>> 18 );
+				pokemon.ribbons.effort = !!( ( ribbons_obedience & 0x00080000 ) >>> 19 );
+				pokemon.ribbons.special = {};
+				pokemon.ribbons.special.sp1 = !!( ( ribbons_obedience & 0x00100000 ) >>> 20 );
+				pokemon.ribbons.special.sp2 = !!( ( ribbons_obedience & 0x00200000 ) >>> 21 );
+				pokemon.ribbons.special.sp3 = !!( ( ribbons_obedience & 0x00400000 ) >>> 22 );
+				pokemon.ribbons.special.sp4 = !!( ( ribbons_obedience & 0x00800000 ) >>> 23 );
+				pokemon.ribbons.special.sp5 = !!( ( ribbons_obedience & 0x01000000 ) >>> 24 );
+				pokemon.ribbons.special.sp6 = !!( ( ribbons_obedience & 0x04000000 ) >>> 26 );
+				pokemon.misc.obedience = !!( ( ribbons_obedience & 0x80000000 ) >>> 31 );
 			}
+		}
+		for ( var i  = 0 ; i < pokemon.moves.length ; i++ ) {
+			pokemon.moves[i].pp_bonus = pp_bonus_cache[i];
+		}
+	}
+
+	ribbonLookup( val ) {
+		var table = {
+			0 : false,
+			1 : "Normal",
+			2 : "Super",
+			3 : "Hyper",
+			4 : "Master",
+		}
+		if ( val in table ) {
+			return table[ val ];
+		} else {
+			return "???";
+		}
+	}
+
+	pokeballLookup( val ) {
+		var table = {
+			1 : "Master Ball",
+			2 : "Ultra Ball",
+			3 : "Great Ball",
+			4 : "PokéBall",
+			5 : "Safari Ball",
+			6 : "Net Ball",
+			7 : "Dive Ball",
+			8 : "Nest Ball",
+			9 : "Repeat Ball",
+			10 : "Timer Ball",
+			11 : "Luxury Ball",
+			12 : "Premier Ball"
+		}
+		if ( val in table ) {
+			return table[ val ];
+		} else {
+			return "???";
+		}
+	}
+	
+	gameOfOrigin( val ) {
+		var table = {
+			0 : "Colosseum Bonus Disc",
+			1 : "Sapphire",
+			2 : "Ruby",
+			3 : "Emerald",
+			4 : "Fire Red",
+			5 : "Leaf Green",
+			15 : "Colosseum or XD"
+		}
+		if ( val in table ) {
+			return table[ val ];
+		} else {
+			return "???";
 		}
 	}
 
