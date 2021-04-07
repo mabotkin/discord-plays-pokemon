@@ -1,0 +1,35 @@
+canvas {
+	width: 720px;
+	height: 480px;
+}
+#input-div {
+	width: 360px;
+	height: 300px;
+	margin: 0 auto;
+	text-align: left;
+	border: 4px black;
+	border-style: double;
+	padding: 10px;
+}
+#inputs {
+	overflow-y: auto;
+	height: 100%;
+}
+body {
+	font-family: Helvetica, sans-serif;
+	text-align: center;
+}
+ul.nobullets {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+li.pokebullet {
+	background: url('./assets/bullet.png') no-repeat left top;
+	height: 30px;
+	padding-left: 40px;
+	padding-top: 3px;
+}
+p { 
+	margin: 10px;
+}
