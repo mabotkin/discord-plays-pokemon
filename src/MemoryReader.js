@@ -74,6 +74,14 @@ class MemoryReader {
 		// DATA HERE
 		this.parseSubstructureData( address + 32 , pokemon , mem );
 		// STATUS CONDITION HERE
+		pokemon.stats.status = {};
+		var status_byte = mem.loadU8( address + 80 );
+		pokemon.stats.status.sleep = ( status_byte & 0x07 );
+		pokemon.stats.status.poison = ( ( ( status_byte & 0x08 ) >> 3 ) == 1 );
+		pokemon.stats.status.burn = ( ( ( status_byte & 0x10 ) >> 4 ) == 1 );
+		pokemon.stats.status.freeze = ( ( ( status_byte & 0x20 ) >> 5 ) == 1 );
+		pokemon.stats.status.paralysis = ( ( ( status_byte & 0x40 ) >> 6 ) == 1 );
+		pokemon.stats.status.bad_poison = ( ( ( status_byte & 0x80 ) >> 7 ) == 1 );
 		//
 		pokemon.stats.level = mem.loadU8( address + 84 );
 		pokemon.misc.pokerus = mem.loadU8( address + 85 );
