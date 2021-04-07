@@ -1,6 +1,4 @@
-exports.pokemon_index = [
-"",
-"Bulbasaur",
+exports.pokemon_index = [ "", "Bulbasaur",
 "Ivysaur",
 "Venusaur",
 "Charmander",

@@ -1,4 +1,5 @@
-var pokemon_index = require('./lookup/pokemon.js').pokemon_index;
+var pokemon_index = require('./lookup/pokemon_index.js').pokemon_index;
+var pokemon_pokedex = require('./lookup/pokemon_pokedex.js').pokemon_pokedex;
 var moves_index = require('./lookup/moves.js').moves_index;
 var locations_index = require('./lookup/locations.js').locations_index;
 
@@ -116,6 +117,7 @@ class MemoryReader {
 			if ( order[ i ] == "G" ) {
 				pokemon.info.species = ( first_four & 0x0000ffff );
 				pokemon.info.species_name = pokemon_index[ pokemon.info.species ];
+				pokemon.info.pokedex_id = pokemon_pokedex[ pokemon.info.species ];
 				pokemon.stats.item = ( first_four & 0xffff0000 ) >>> 16;
 				pokemon.stats.exp = second_four;
 				var pp_bonuses = ( third_four & 0x000000ff );
