@@ -1,7 +1,9 @@
 var pokemon_index = require('./lookup/pokemon_index.js').pokemon_index;
 var pokemon_pokedex = require('./lookup/pokemon_pokedex.js').pokemon_pokedex;
-var moves_index = require('./lookup/moves.js').moves_index;
+var moves = require('./lookup/moves.js').moves;
 var locations_index = require('./lookup/locations.js').locations_index;
+var pokemon_types = require('./lookup/pokemon_types.js').pokemon_types;
+var catchrates = require('./lookup/catchrate.js').catchrates;
 
 class MemoryConfig {
     // Stores relevant memory addresses for a particular game
@@ -34,6 +36,11 @@ class MemoryReader {
         var beegData = {};
 
         beegData.partyPokemon = this.getPartyPokemonData( this.memconfig.partyPokemonAddress );
+		var enemyPokemon = this.parsePokemon( this.memconfig.enemyPokemonAddress );
+		if ( this.isNotZeroPokemon( enemyPokemon ) ) {
+			//beegData.enemyPokemon = enemyPokemon;
+			beegData.catchRate = this.getCatchRate( beegData.enemyPokemon );
+		}
 
         return beegData;
     }
@@ -118,6 +125,7 @@ class MemoryReader {
 				pokemon.info.species = ( first_four & 0x0000ffff );
 				pokemon.info.species_name = pokemon_index[ pokemon.info.species ];
 				pokemon.info.pokedex_id = pokemon_pokedex[ pokemon.info.species ];
+				pokemon.info.type = pokemon_types[ pokemon.info.pokedex_id ];
 				pokemon.stats.item = ( first_four & 0xffff0000 ) >>> 16;
 				pokemon.stats.exp = second_four;
 				var pp_bonuses = ( third_four & 0x000000ff );
@@ -136,10 +144,10 @@ class MemoryReader {
 				var pp3 = ( third_four & 0x00ff0000 ) >>> 16;
 				var pp4 = ( third_four & 0xff000000 ) >>> 24;
 				pokemon.moves = [];
-				pokemon.moves.push( { name : moves_index[ move1 ] , id : move1 , pp : pp1 } );
-				pokemon.moves.push( { name : moves_index[ move2 ] , id : move2 , pp : pp2 } );
-				pokemon.moves.push( { name : moves_index[ move3 ] , id : move3 , pp : pp3 } );
-				pokemon.moves.push( { name : moves_index[ move4 ] , id : move4 , pp : pp4 } );
+				pokemon.moves.push( { movedata : moves[ move1 ] , id : move1 , pp : pp1 } );
+				pokemon.moves.push( { movedata : moves[ move2 ] , id : move2 , pp : pp2 } );
+				pokemon.moves.push( { movedata : moves[ move3 ] , id : move3 , pp : pp3 } );
+				pokemon.moves.push( { movedata : moves[ move4 ] , id : move4 , pp : pp4 } );
 			} else if ( order[ i ] == "E" ) {
 				pokemon.EVs = {};
 				pokemon.conditions = {};
@@ -309,6 +317,42 @@ class MemoryReader {
 		} else {
 			return "?";
 		}
+	}
+
+	getCatchRate( pokemon ) {
+		var rate = catchrates[ pokemon.info.pokedex_id ];
+		var statusBonus = 1;
+		if ( pokemon.stats.status.sleep > 0 || pokemon.stats.status.freeze ) {
+			statusBonus = 2;
+		} else if ( pokemon.stats.status.paralysis || pokemon.stats.status.poison || pokemon.stats.status.burn ) {
+			statusBonus = 1.5;
+		}
+		var base = ( 3 * pokemon.stats.totalHP - 2 * pokemon.stats.currentHP ) * rate ;
+		var ans = {};
+		ans.pokeball = this.catchRateHelper( base , 1 , pokemon.stats.totalHP , statusBonus );
+		ans.greatball = this.catchRateHelper( base , 1.5 , pokemon.stats.totalHP , statusBonus );
+		ans.ultraball = this.catchRateHelper( base , 2 , pokemon.stats.totalHP , statusBonus );
+		ans.masterball = 255;
+		var netball = 1;
+		if ( pokemon.info.type.includes( "Water" ) || pokemon.info.type.includes( "Bug" ) ) {
+			netball = 3.5;
+		}
+		ans.netball = this.catchRateHelper( base , netball , pokemon.stats.totalHP , statusBonus );
+		var nestball = 1;
+		if ( pokemon.stats.level >= 1 && pokemon.stats.level <= 29 ) {
+			var val = (41 - pokemon.stats.level) / 10.0;
+			nestball = val;
+		}
+		ans.nestball = this.catchRateHelper( base , nestball , pokemon.stats.totalHP , statusBonus );
+
+		return ans;
+	}
+
+	catchRateHelper( base , ball , totalHP , statusBonus ) {
+		var x = Math.floor( base * ball );
+		x = Math.floor( x / ( 3 * totalHP ) );
+		x *= statusBonus;
+		return Math.min( Math.floor( x ) , 255 );
 	}
 }
 

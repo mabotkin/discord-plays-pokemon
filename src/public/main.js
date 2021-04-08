@@ -25,9 +25,11 @@ socket.on( "viewers" , ( data ) => {
 	var viewers = parseInt( data );
 	document.getElementById( "viewers" ).innerHTML = "Viewers: " + viewers;
 });
+/*
 socket.on( "gameData" , ( data ) => {
-	console.log( data );
+	//console.log( data );
 });
+*/
 function makeli( data ) {
 	var li = document.createElement("li");
 	var now = new Date();

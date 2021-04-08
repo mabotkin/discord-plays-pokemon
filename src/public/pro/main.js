@@ -26,7 +26,7 @@ socket.on( "viewers" , ( data ) => {
 	document.getElementById( "viewers" ).innerHTML = "Viewers: " + viewers;
 });
 socket.on( "gameData" , ( data ) => {
-	//console.log( data );
+	console.log( data );
 });
 function makeli( data ) {
 	var li = document.createElement("li");
