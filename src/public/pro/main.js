@@ -33,6 +33,7 @@ socket.on( "gameData" , ( data ) => {
 		var card = document.createElement('poke-card');
 		card.setAttribute('no', p.info.pokedex_id);
 		card.setAttribute('nickname', p.info.nickname);
+		card.setAttribute('type',JSON.stringify( p.info.type ));
 		partyCards.appendChild(card);
 	}
 	console.log( data );
