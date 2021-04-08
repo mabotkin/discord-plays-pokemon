@@ -2,7 +2,7 @@ var socket = io();
 document.addEventListener('DOMContentLoaded', function() {
 	if ( !socket.connected ) {
 		document.getElementById( "viewers" ).innerHTML = "You are disconnected from the server.  Only one instance is allowed to connect per IP.  If you believe this is a mistake, please wait 5 seconds and refresh.";
-}
+	}
 }, false);
 socket.on( "canvasData" , ( data ) => { 
 	var canvas = document.getElementById('screen');

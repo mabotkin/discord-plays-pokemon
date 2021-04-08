@@ -2,7 +2,7 @@ var socket = io();
 document.addEventListener('DOMContentLoaded', function() {
 	if ( !socket.connected ) {
 		document.getElementById( "viewers" ).innerHTML = "You are disconnected from the server.  Only one instance is allowed to connect per IP.  If you believe this is a mistake, please wait 5 seconds and refresh.";
-}
+	}
 }, false);
 socket.on( "canvasData" , ( data ) => { 
 	var canvas = document.getElementById('screen');
@@ -25,7 +25,19 @@ socket.on( "viewers" , ( data ) => {
 	var viewers = parseInt( data );
 	document.getElementById( "viewers" ).innerHTML = "Viewers: " + viewers;
 });
+var party_pokemon_cards = [];
 socket.on( "gameData" , ( data ) => {
+	if ( party_pokemon_cards.length != 6 ) {
+		var partyCards = document.getElementById('party');
+		for ( var i = 0 ; i < 6 ; i++ ) {
+			party_pokemon_cards.push( new PokeCard() );
+			partyCards.appendChild( party_pokemon_cards[i].initialRender() );
+		}
+	}
+	for ( var i = 0 ; i < 6 ; i++ ) {
+		party_pokemon_cards[i].update( data.partyPokemon[i] );
+	}
+	/*
 	var partyCards = document.getElementById('party');
 	partyCards.innerHTML = '';
 	for(var i = 0; i < data.partyPokemon.length; i++) {
@@ -36,6 +48,7 @@ socket.on( "gameData" , ( data ) => {
 		card.setAttribute('type',JSON.stringify( p.info.type ));
 		partyCards.appendChild(card);
 	}
+	*/
 	console.log( data );
 });
 function makeli( data ) {
