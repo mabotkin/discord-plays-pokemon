@@ -26,6 +26,15 @@ socket.on( "viewers" , ( data ) => {
 	document.getElementById( "viewers" ).innerHTML = "Viewers: " + viewers;
 });
 socket.on( "gameData" , ( data ) => {
+	var partyCards = document.getElementById('party');
+	partyCards.innerHTML = '';
+	for(var i = 0; i < data.partyPokemon.length; i++) {
+		var p = data.partyPokemon[i];
+		var card = document.createElement('poke-card');
+		card.setAttribute('no', p.info.pokedex_id);
+		card.setAttribute('nickname', p.info.nickname);
+		partyCards.appendChild(card);
+	}
 	console.log( data );
 });
 function makeli( data ) {

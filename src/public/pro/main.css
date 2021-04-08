@@ -2,6 +2,9 @@ canvas {
 	width: 720px;
 	height: 480px;
 }
+#wrapper {
+	text-align: center;
+}
 #input-div {
 	width: 360px;
 	height: 300px;
@@ -18,6 +21,8 @@ canvas {
 body {
 	font-family: Helvetica, sans-serif;
 	text-align: center;
+	background-color: #151515;
+	color: #FFFFFF;
 }
 ul.nobullets {
 	list-style-type: none;
@@ -25,11 +30,17 @@ ul.nobullets {
 	margin: 0;
 }
 li.pokebullet {
-	background: url('../assets/bullet.png') no-repeat left top;
+	background: url('./assets/bullet.png') no-repeat left top;
 	height: 30px;
 	padding-left: 40px;
 	padding-top: 3px;
 }
 p { 
 	margin: 10px;
+}
+#party {
+    float:left; 
+    width:20%; 
+    margin:5px;
+    position:absolute;
 }
