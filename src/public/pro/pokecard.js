@@ -14,6 +14,7 @@ class PokeCard {
 		</div>
 		<div id="nicknamediv">
 			<p id="nickname"></p>
+			<p id="species-lvl"></p>
 		</div>
 	</div>
 	*/
@@ -43,6 +44,10 @@ class PokeCard {
 		nickname_p.setAttribute( "id" , "nickname" );
 		nickname_div.appendChild( nickname_p );
 		this.data_map[ "nickname" ] = nickname_p;
+		var species_lvl_p = document.createElement( "p" );
+		species_lvl_p.setAttribute( "id" , "species_lvl" );
+		nickname_div.appendChild( species_lvl_p );
+		this.data_map[ "species_lvl" ] = species_lvl_p;
 		//
 		this.data_map[ "color" ] = root;
 	}
@@ -54,6 +59,7 @@ class PokeCard {
 			this.updateSprite( this.pokemon );
 			this.updateNickname( this.pokemon );
 			this.updateColor( this.pokemon );
+			this.updateSpeciesLvl( this.pokemon );
 			this.setAlive( true );
 		}
 		return this.root;
@@ -83,6 +89,9 @@ class PokeCard {
 		if ( shortCircuit || ( this.pokemon.info.pokedex_id != newPokemon.info.pokedex_id ) ) {
 			this.updateColor( newPokemon );
 		}
+		if ( shortCircuit || ( this.pokemon.info.species_name != newPokemon.info.species_name ) || ( this.pokemon.stats.level != newPokemon.stats.level ) ) {
+			this.updateSpeciesLvl( newPokemon );
+		}
 		this.pokemon = newPokemon;
 	}
 
@@ -110,6 +119,11 @@ class PokeCard {
 			div.style.backgroundColor = this.colorLookup( type[0] );
 			div.style.backgroundImage = "";
 		}
+	}
+
+	updateSpeciesLvl( newPokemon ) {
+		var elt = this.data_map[ "species_lvl" ];
+		elt.innerHTML = newPokemon.info.species_name + " lvl. " + newPokemon.stats.level;
 	}
 
 	colorLookup( type ) {
