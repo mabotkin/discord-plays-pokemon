@@ -52,10 +52,6 @@ class PokeCard {
 		sprite_img.setAttribute( "id" , this.makeIdUnique( "spriteimg" ) );
 		sprite_img.setAttribute( "class" , "spriteimg" );
 		this.data_map[ "sprite" ] = sprite_img;
-		sprite_img.onload = function() {
-			this.style.width = this.width * 0.75
-			this.style.height = 'auto'
-		}
 		sprite_div.appendChild( align_span );
 		sprite_div.appendChild( sprite_img );
 		//
@@ -118,6 +114,10 @@ class PokeCard {
 
 	updateSprite( newPokemon ) {
 		var sprite = this.data_map[ "sprite" ];
+		sprite.onload = function() {
+			this.style.width = this.width * 0.75;
+			this.style.height = 'auto';
+		}
 		sprite.src = '../assets/sprites/' + (newPokemon.info.pokedex_id + "").padStart(3, '0') + '.gif';
 	}
 
