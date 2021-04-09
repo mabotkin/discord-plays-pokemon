@@ -27,10 +27,11 @@ socket.on( "viewers" , ( data ) => {
 });
 var party_pokemon_cards = [];
 socket.on( "gameData" , ( data ) => {
+	console.log( data );
 	if ( party_pokemon_cards.length != 6 ) {
 		var partyCards = document.getElementById('party');
 		for ( var i = 0 ; i < 6 ; i++ ) {
-			party_pokemon_cards.push( new PokeCard() );
+			party_pokemon_cards.push( new PokeCard(i) );
 			partyCards.appendChild( party_pokemon_cards[i].initialRender() );
 		}
 	}
@@ -49,7 +50,6 @@ socket.on( "gameData" , ( data ) => {
 		partyCards.appendChild(card);
 	}
 	*/
-	console.log( data );
 });
 function makeli( data ) {
 	var li = document.createElement("li");

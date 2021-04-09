@@ -1,51 +1,70 @@
 class PokeCard {
-	constructor( pokemon ) {
-		this.pokemon = pokemon;
+	constructor( uuid ) {
+		this.pokemon = undefined;
 		this.root = null;
 		this.data_map = {};
+		this.uuid = uuid;
+
+		this.update_protocols = {
+			"sprite" : [ (p) => [ p.info.pokedex_id ] , (x) => this.updateSprite(x) ] ,
+			"nickname" : [ (p) => [ p.info.nickname ] , (x) => this.updateNickname(x) ] ,
+			"color" : [ (p) => [ p.info.pokedex_id ] , (x) => this.updateColor(x) ] ,
+			"speciesLvl" : [ (p) => [ p.info.species_name , p.stats.level ] , (x) => this.updateSpeciesLvl(x) ]
+		};
 	}
 
 	/*
 	Schema:
-	<div id="card-div" class="card">
-		<div id="sprite">
+	<div id="card-div-#" class="card">
+		<div id="sprite-#" class="sprite">
 			<span class="vertical-align"></span>
-			<img id="spriteimg" src="" alt="">
+			<img id="spriteimg-#" class="spriteimg" src="" alt="">
 		</div>
-		<div id="nicknamediv">
-			<p id="nickname"></p>
-			<p id="species-lvl"></p>
+		<div id="nicknamediv-#" class="nicknamediv">
+			<p id="nickname-#"></p>
+			<p id="species-lvl-#"></p>
 		</div>
 	</div>
 	*/
 
+	makeIdUnique( id ) {
+		return id + "-" + this.uuid;
+	}
+
 	createTemplate() {
 		var root = document.createElement( "div" );
 		this.root = root;
-		root.setAttribute( "id" , "card-div" );
+		root.setAttribute( "id" , this.makeIdUnique( "card-div" ) );
 		root.setAttribute( "class" , "card" );
 		//
 		var sprite_div = document.createElement( "div" );
-		sprite_div.setAttribute( "id" , "sprite" );
+		sprite_div.setAttribute( "id" , this.makeIdUnique( "sprite" ) );
+		sprite_div.setAttribute( "class" , "sprite" );
 		var nickname_div = document.createElement( "div" );
-		nickname_div.setAttribute( "id" , "nicknamediv");
+		nickname_div.setAttribute( "id" , this.makeIdUnique( "nicknamediv" ) );
+		nickname_div.setAttribute( "class" , "nicknamediv" );
 		root.appendChild( sprite_div );
 		root.appendChild( nickname_div );
 		//
 		var align_span = document.createElement( "span" );
 		align_span.setAttribute( "class" , "vertical-align" );
 		var sprite_img = document.createElement( "img" );
-		sprite_img.setAttribute( "id" , "spriteimg" );
+		sprite_img.setAttribute( "id" , this.makeIdUnique( "spriteimg" ) );
+		sprite_img.setAttribute( "class" , "spriteimg" );
 		this.data_map[ "sprite" ] = sprite_img;
+		sprite_img.onload = function() {
+			this.style.width = this.width * 0.75
+			this.style.height = 'auto'
+		}
 		sprite_div.appendChild( align_span );
 		sprite_div.appendChild( sprite_img );
 		//
 		var nickname_p = document.createElement( "p" );
-		nickname_p.setAttribute( "id" , "nickname" );
+		nickname_p.setAttribute( "id" , this.makeIdUnique( "nickname" ) );
 		nickname_div.appendChild( nickname_p );
 		this.data_map[ "nickname" ] = nickname_p;
 		var species_lvl_p = document.createElement( "p" );
-		species_lvl_p.setAttribute( "id" , "species_lvl" );
+		species_lvl_p.setAttribute( "id" , this.makeIdUnique( "species_lvl" ) );
 		nickname_div.appendChild( species_lvl_p );
 		this.data_map[ "species_lvl" ] = species_lvl_p;
 		//
@@ -55,13 +74,6 @@ class PokeCard {
 	initialRender() {
 		this.createTemplate();
 		this.setAlive( false );
-		if ( ! ( this.pokemon === undefined ) ) {
-			this.updateSprite( this.pokemon );
-			this.updateNickname( this.pokemon );
-			this.updateColor( this.pokemon );
-			this.updateSpeciesLvl( this.pokemon );
-			this.setAlive( true );
-		}
 		return this.root;
 	}
 
@@ -79,7 +91,16 @@ class PokeCard {
 			return;
 		}
 		this.setAlive( true );
+		//
 		var shortCircuit = ( this.pokemon === undefined );
+		for ( var protocol in this.update_protocols ) {
+			var protocol_data = this.update_protocols[ protocol ];
+			if ( shortCircuit || ( protocol_data[0]( this.pokemon ) != protocol_data[0]( newPokemon ) ) ) {
+				protocol_data[1]( newPokemon );
+			}
+		}
+		this.pokemon = newPokemon;
+		/*
 		if ( shortCircuit || ( this.pokemon.info.pokedex_id != newPokemon.info.pokedex_id ) ) {
 			this.updateSprite( newPokemon );
 		}
@@ -92,15 +113,11 @@ class PokeCard {
 		if ( shortCircuit || ( this.pokemon.info.species_name != newPokemon.info.species_name ) || ( this.pokemon.stats.level != newPokemon.stats.level ) ) {
 			this.updateSpeciesLvl( newPokemon );
 		}
-		this.pokemon = newPokemon;
+		*/
 	}
 
 	updateSprite( newPokemon ) {
 		var sprite = this.data_map[ "sprite" ];
-		sprite.onload = function() {
-			this.style.width = this.width * 0.75
-			this.style.height = 'auto'
-		}
 		sprite.src = '../assets/sprites/' + (newPokemon.info.pokedex_id + "").padStart(3, '0') + '.gif';
 	}
 

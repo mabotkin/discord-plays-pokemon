@@ -37,7 +37,7 @@ class MemoryReader {
 
         beegData.partyPokemon = this.getPartyPokemonData( this.memconfig.partyPokemonAddress );
 		var enemyPokemon = this.parsePokemon( this.memconfig.enemyPokemonAddress );
-		if ( this.isNotZeroPokemon( enemyPokemon ) ) {
+		if ( this.isWellFormedPokemon( enemyPokemon ) ) {
 			//beegData.enemyPokemon = enemyPokemon;
 			beegData.catchRate = this.getCatchRate( beegData.enemyPokemon );
 		}
@@ -46,8 +46,10 @@ class MemoryReader {
     }
 
 	// check if pokemon is really the zero pokemon
-	isNotZeroPokemon( pokemon ) {
-		return pokemon.info.species != 0;
+	isWellFormedPokemon( pokemon ) {
+		var a = ( pokemon.info.species != 0 );
+		var b = ( pokemon.misc.checksum == pokemon.misc.computed_checksum );
+		return ( a && b );
 	}
 
     // Returns a Party object
@@ -55,7 +57,7 @@ class MemoryReader {
         return [...Array(6).keys()]
             .map( i => address + i * 100 )
             .map( address => this.parsePokemon( address ) )
-			.filter( this.isNotZeroPokemon );
+			.filter( this.isWellFormedPokemon );
     }
 
 	parsePokemon( address ) {
@@ -116,11 +118,20 @@ class MemoryReader {
 		var decryption_key = pokemon.personality_value ^ pokemon.OT.OTID;
 		var order = substructure_order[ ( ( pokemon.personality_value % 24 ) + 24 ) % 24 ];
 		var pp_bonus_cache = [];
+		var computed_checksum = 0;
 		for ( var i = 0 ; i < 4 ; i++ ) {
 			var block_address = address + 12*i;
 			var first_four = this.loadU32( mem , block_address ) ^ decryption_key;
 			var second_four = this.loadU32( mem , block_address + 4 ) ^ decryption_key;
 			var third_four = this.loadU32( mem , block_address + 8 ) ^ decryption_key;
+			//
+			computed_checksum += ( first_four & 0x0000ffff );
+			computed_checksum += ( first_four & 0xffff0000 ) >>> 16;
+			computed_checksum += ( second_four & 0x0000ffff );
+			computed_checksum += ( second_four & 0xffff0000 ) >>> 16;
+			computed_checksum += ( third_four & 0x0000ffff );
+			computed_checksum += ( third_four & 0xffff0000 ) >>> 16;
+			//
 			if ( order[ i ] == "G" ) {
 				pokemon.info.species = ( first_four & 0x0000ffff );
 				pokemon.info.species_name = pokemon_index[ pokemon.info.species ];
@@ -215,6 +226,7 @@ class MemoryReader {
 		for ( var i  = 0 ; i < pokemon.moves.length ; i++ ) {
 			pokemon.moves[i].pp_bonus = pp_bonus_cache[i];
 		}
+		pokemon.misc.computed_checksum = computed_checksum % 2**16;
 	}
 
 	ribbonLookup( val ) {
@@ -320,6 +332,9 @@ class MemoryReader {
 	}
 
 	getCatchRate( pokemon ) {
+		if ( pokemon === undefined ) {
+			return 0;
+		}
 		var rate = catchrates[ pokemon.info.pokedex_id ];
 		var statusBonus = 1;
 		if ( pokemon.stats.status.sleep > 0 || pokemon.stats.status.freeze ) {
