@@ -27,6 +27,12 @@ socket.on( "viewers" , ( data ) => {
 });
 var party_pokemon_cards = [];
 var enemy_pokemon_cards = [];
+var playerX = -1;
+var playerY = -1;
+function clearEnemyPokemon() {
+	enemy_pokemon_cards = [];
+	document.getElementById( 'party-enemy' ).innerHTML = "";
+}
 socket.on( "gameData" , ( data ) => {
 	console.log( data );
 	// preload
@@ -51,6 +57,14 @@ socket.on( "gameData" , ( data ) => {
 	for ( var i = 0 ; i < 6 ; i++ ) {
 		enemy_pokemon_cards[i].update( data.enemyPokemon[i] );
 	}
+	/*
+	if ( data.playerX != playerX || data.playerY != playerY ) {
+		// trigger out of battle
+		clearEnemyPokemon();
+		data.playerX = playerX;
+		data.playerY = playerY;
+	}
+	*/
 	/*
 	var partyCards = document.getElementById('party');
 	partyCards.innerHTML = '';
