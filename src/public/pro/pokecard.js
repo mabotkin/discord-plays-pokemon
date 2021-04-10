@@ -8,9 +8,8 @@ class PokeCard {
 
 		this.update_protocols = {
 			"sprite" : [ (p) => [ p.info.pokedex_id ] , (x) => this.updateSprite(x) ] ,
-			"nickname" : [ (p) => [ p.info.nickname ] , (x) => this.updateNickname(x) ] ,
+			"name" : [ (p) => [ p.info.nickname , p.info.species_name , p.stats.level ] , (x) => this.updateName(x) ] ,
 			"color" : [ (p) => [ p.info.pokedex_id ] , (x) => this.updateColor(x) ] ,
-			"speciesLvl" : [ (p) => [ p.info.species_name , p.stats.level ] , (x) => this.updateSpeciesLvl(x) ]
 		};
 	}
 
@@ -22,8 +21,7 @@ class PokeCard {
 			<img id="spriteimg-#" class="spriteimg" src="" alt="">
 		</div>
 		<div id="nicknamediv-#" class="nicknamediv">
-			<p id="nickname-#"></p>
-			<p id="species-lvl-#"></p>
+			<p id="name-#"></p>
 		</div>
 	</div>
 	*/
@@ -56,14 +54,11 @@ class PokeCard {
 		sprite_div.appendChild( align_span );
 		sprite_div.appendChild( sprite_img );
 		//
-		var nickname_p = document.createElement( "p" );
-		nickname_p.setAttribute( "id" , this.makeIdUnique( "nickname" ) );
-		nickname_div.appendChild( nickname_p );
-		this.data_map[ "nickname" ] = nickname_p;
-		var species_lvl_p = document.createElement( "p" );
-		species_lvl_p.setAttribute( "id" , this.makeIdUnique( "species_lvl" ) );
-		nickname_div.appendChild( species_lvl_p );
-		this.data_map[ "species_lvl" ] = species_lvl_p;
+		var name_p = document.createElement( "p" );
+		name_p.setAttribute( "id" , this.makeIdUnique( "name" ) );
+		name_p.style.margin = '0px';
+		nickname_div.appendChild( name_p );
+		this.data_map[ "name" ] = name_p;
 		//
 		this.data_map[ "color" ] = root;
 	}
@@ -124,9 +119,9 @@ class PokeCard {
 		sprite.src = '../assets/sprites/' + (newPokemon.info.pokedex_id + "").padStart(3, '0') + '.gif';
 	}
 
-	updateNickname( newPokemon ) {
-		var nickname = this.data_map[ "nickname" ];
-		nickname.innerHTML = newPokemon.info.nickname;
+	updateName( newPokemon ) {
+		var name = this.data_map[ "name" ];
+		name.innerHTML = newPokemon.info.nickname + ' &#9830;&#9830;&#9830; ' + newPokemon.info.species_name + " lvl. " + newPokemon.stats.level;;
 	}
 
 	updateColor( newPokemon ) {
@@ -141,11 +136,6 @@ class PokeCard {
 		}
 	}
 
-	updateSpeciesLvl( newPokemon ) {
-		var elt = this.data_map[ "species_lvl" ];
-		elt.innerHTML = newPokemon.info.species_name + " lvl. " + newPokemon.stats.level;
-	}
-
 	colorLookup( type ) {
 		var table = {
 			"Normal" : "#A8A878",
@@ -153,7 +143,7 @@ class PokeCard {
 			"Flying" : "#A890F0",
 			"Poison" : "#A040A0",
 			"Ground" : "#E0C068",
-			"Rock" : "#A8B820",
+			"Rock" : "#B8A038",
 			"Bug" : "#A8B820",
 			"Ghost" : "#705898",
 			"Steel" : "#B8B8D0",
