@@ -26,8 +26,10 @@ socket.on( "viewers" , ( data ) => {
 	document.getElementById( "viewers" ).innerHTML = "Viewers: " + viewers;
 });
 var party_pokemon_cards = [];
+var enemy_pokemon_cards = [];
 socket.on( "gameData" , ( data ) => {
 	console.log( data );
+	// preload
 	if ( party_pokemon_cards.length != 6 ) {
 		var partyCards = document.getElementById('party');
 		for ( var i = 0 ; i < 6 ; i++ ) {
@@ -35,8 +37,19 @@ socket.on( "gameData" , ( data ) => {
 			partyCards.appendChild( party_pokemon_cards[i].initialRender() );
 		}
 	}
+	if ( enemy_pokemon_cards.length != 6 ) {
+		var enemyCards = document.getElementById('party-enemy');
+		for ( var i = 0 ; i < 6 ; i++ ) {
+			enemy_pokemon_cards.push( new PokeCard(i + "-enemy" , false ) );
+			enemyCards.appendChild( enemy_pokemon_cards[i].initialRender() );
+		}
+	}
+	//
 	for ( var i = 0 ; i < 6 ; i++ ) {
 		party_pokemon_cards[i].update( data.partyPokemon[i] );
+	}
+	for ( var i = 0 ; i < 6 ; i++ ) {
+		enemy_pokemon_cards[i].update( data.enemyPokemon[i] );
 	}
 	/*
 	var partyCards = document.getElementById('party');

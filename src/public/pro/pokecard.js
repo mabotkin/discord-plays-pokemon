@@ -1,9 +1,10 @@
 class PokeCard {
-	constructor( uuid ) {
+	constructor( uuid="no-uuid" , mirror=false ) {
 		this.pokemon = undefined;
 		this.root = null;
 		this.data_map = {};
 		this.uuid = uuid;
+		this.mirrorSuffix = ( mirror ? "-mirror" : "" );
 
 		this.update_protocols = {
 			"sprite" : [ (p) => [ p.info.pokedex_id ] , (x) => this.updateSprite(x) ] ,
@@ -39,10 +40,10 @@ class PokeCard {
 		//
 		var sprite_div = document.createElement( "div" );
 		sprite_div.setAttribute( "id" , this.makeIdUnique( "sprite" ) );
-		sprite_div.setAttribute( "class" , "sprite" );
+		sprite_div.setAttribute( "class" , "sprite" + this.mirrorSuffix );
 		var nickname_div = document.createElement( "div" );
 		nickname_div.setAttribute( "id" , this.makeIdUnique( "nicknamediv" ) );
-		nickname_div.setAttribute( "class" , "nicknamediv" );
+		nickname_div.setAttribute( "class" , "nicknamediv" + this.mirrorSuffix );
 		root.appendChild( sprite_div );
 		root.appendChild( nickname_div );
 		//
@@ -114,10 +115,12 @@ class PokeCard {
 
 	updateSprite( newPokemon ) {
 		var sprite = this.data_map[ "sprite" ];
+		/*
 		sprite.onload = function() {
 			this.style.width = this.width * 0.75;
 			this.style.height = 'auto';
 		}
+		*/
 		sprite.src = '../assets/sprites/' + (newPokemon.info.pokedex_id + "").padStart(3, '0') + '.gif';
 	}
 

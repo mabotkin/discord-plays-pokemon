@@ -21,8 +21,19 @@
 	text-align: center;
 	white-space: nowrap;
 }
+.sprite-mirror {
+	float:right;
+	width:90px;
+	height:90px;
+	margin: 2.5px;
+	line-height: 25px;
+	text-align: center;
+	white-space: nowrap;
+}
 .spriteimg {
 	vertical-align: middle;
+	width: 75%;
+	height: auto;
 }
 .vertical-align {
 	display: inline-block;
@@ -32,5 +43,10 @@
 .nicknamediv {
 	margin-top: 15px;
 	margin-left: 100px;
+	position: absolute;
+}
+.nicknamediv-mirror {
+	margin-top: 15px;
+	margin-right: 100px;
 	position: absolute;
 }

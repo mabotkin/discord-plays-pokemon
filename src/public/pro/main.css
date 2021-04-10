@@ -39,8 +39,14 @@ p {
 	margin: 10px;
 }
 #party {
-    float:left; 
-    width:20%; 
-    margin:5px;
-    position:absolute;
+    float: left; 
+	left: 8px;
+    margin: 5px;
+    position: absolute;
+}
+#party-enemy {
+    float: right; 
+	right: 8px;
+    margin: 5px;
+    position: absolute;
 }
