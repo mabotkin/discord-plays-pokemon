@@ -36,10 +36,10 @@ class MemoryReader {
         var beegData = {};
 
         beegData.partyPokemon = this.getPartyPokemonData( this.memconfig.partyPokemonAddress );
+        beegData.enemyPokemon = this.getPartyPokemonData( this.memconfig.enemyPokemonAddress );
 		var enemyPokemon = this.parsePokemon( this.memconfig.enemyPokemonAddress );
 		if ( this.isWellFormedPokemon( enemyPokemon ) ) {
-			//beegData.enemyPokemon = enemyPokemon;
-			beegData.catchRate = this.getCatchRate( beegData.enemyPokemon );
+			beegData.catchRate = this.getCatchRate( enemyPokemon );
 		}
 
         return beegData;
