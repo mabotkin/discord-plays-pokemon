@@ -10,6 +10,7 @@ class PokeCard {
 			"sprite" : [ (p) => [ p.info.pokedex_id ] , (x) => this.updateSprite(x) ] ,
 			"name" : [ (p) => [ p.info.nickname , p.info.species_name , p.stats.level ] , (x) => this.updateName(x) ] ,
 			"color" : [ (p) => [ p.info.pokedex_id ] , (x) => this.updateColor(x) ] ,
+			"hp" : [ (p) => [p.stats.currentHP , p.stats.totalHP] , (x) => this.updateHP(x) ] ,
 		};
 	}
 
@@ -22,6 +23,9 @@ class PokeCard {
 		</div>
 		<div id="nicknamediv-#" class="nicknamediv">
 			<p id="name-#"></p>
+		</div>
+		<div class="hp-border">
+			<div id="hp-bar-#" class="hp-bar"></div>
 		</div>
 	</div>
 	*/
@@ -39,11 +43,17 @@ class PokeCard {
 		var sprite_div = document.createElement( "div" );
 		sprite_div.setAttribute( "id" , this.makeIdUnique( "sprite" ) );
 		sprite_div.setAttribute( "class" , "sprite" + this.mirrorSuffix );
+		//
 		var nickname_div = document.createElement( "div" );
 		nickname_div.setAttribute( "id" , this.makeIdUnique( "nicknamediv" ) );
 		nickname_div.setAttribute( "class" , "nicknamediv" + this.mirrorSuffix );
+		//
+		var hp_border = document.createElement( "div" );
+		hp_border.setAttribute( "class" , "hp-border" );
+		//
 		root.appendChild( sprite_div );
 		root.appendChild( nickname_div );
+		root.appendChild( hp_border );
 		//
 		var align_span = document.createElement( "span" );
 		align_span.setAttribute( "class" , "vertical-align" );
@@ -56,9 +66,15 @@ class PokeCard {
 		//
 		var name_p = document.createElement( "p" );
 		name_p.setAttribute( "id" , this.makeIdUnique( "name" ) );
-		name_p.style.margin = '0px';
-		nickname_div.appendChild( name_p );
+		name_p.style.margin = "0px";
 		this.data_map[ "name" ] = name_p;
+		nickname_div.appendChild( name_p );
+		//
+		var hp_bar = document.createElement( "div" );
+		hp_bar.setAttribute("id" , this.makeIdUnique( "hp-bar" ) );
+		hp_bar.setAttribute("class" , "hp-bar");
+		this.data_map[ "hp-bar" ] = hp_bar;
+		hp_border.appendChild( hp_bar );
 		//
 		this.data_map[ "color" ] = root;
 	}
@@ -121,7 +137,24 @@ class PokeCard {
 
 	updateName( newPokemon ) {
 		var name = this.data_map[ "name" ];
-		name.innerHTML = newPokemon.info.nickname + ' &#9830;&#9830;&#9830; ' + newPokemon.info.species_name + " lvl. " + newPokemon.stats.level;;
+		name.innerHTML = newPokemon.info.nickname + " &#9830;&#9830;&#9830; " + newPokemon.info.species_name + " lvl. " + newPokemon.stats.level;;
+	}
+
+	updateHP( newPokemon ) {
+		var hp_bar = this.data_map[ "hp-bar" ];
+		var hp_percent = (newPokemon.stats.currentHP * 100) / newPokemon.stats.totalHP;
+		var color = "";
+		if ( hp_percent > 50 ) {
+			color = "#32CD32";
+		}
+		else if ( hp_percent <= 20 ) {
+			color = "#B22222";
+		}
+		else {
+			color = "#FFD700";
+		}
+		hp_bar.style.backgroundColor = color;
+		hp_bar.style.width = hp_percent.toString() + '%';
 	}
 
 	updateColor( newPokemon ) {
