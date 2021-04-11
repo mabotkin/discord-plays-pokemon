@@ -57,7 +57,10 @@ class PokeCard {
 			"color" : [ (p) => [ p.info.pokedex_id ] , (x) => this.updateColor(x) ] ,
 			"hp" : [ (p) => [ p.stats.currentHP , p.stats.totalHP ] , (x) => this.updateHP(x) ] ,
 			"moves" : [ (p) => [ this.moveHash( p.moves ) ] , (x) => this.updateMoves(x) ] ,
-			"status" : [ (p) => [ p.stats.status ] , (x) => this.updateStatus(x) ]
+			"status" : [ (p) => [ p.stats.status ] , (x) => this.updateStatus(x) ] ,
+			"stats" : [ (p) => [ p.stats.stats ] , (x) => this.updateStats(x) ] ,
+			"eviv" : [ (p) => [ p.EVs , p.IVs ] , (x) => this.updateEVIV(x) ] ,
+			"misc" : [ (p) => [ this.miscHash( p ) ] , (x) => this.updateMisc(x) ] 
 		};
 	}
 
@@ -78,11 +81,30 @@ class PokeCard {
 		</div>
 		<div class="move-wrapper">
 		</div>
+		<div id="tab-wrapper-#" class="tab-wrapper">
+			<div id="tab-buttons-#" class="tab-buttons">
+			</div>
+			<div id="tab-stats-# class="tab-stats">
+			</div>
+			<div id="tab-eviv-# class="tab-eviv">
+			</div>
+			<div id="tab-misc-# class="tab-misc">
+			</div>
+		</div>
 	</div>
 	*/
 
 	makeIdUnique( id ) {
 		return id + "-" + this.uuid;
+	}
+
+	miscHash( p ) {
+		var ans = [];
+		ans.push( p.stats.exp );
+		ans.push( p.stats.friendship );
+		ans.push( p.misc.met_location );
+		ans.push( p.personality_value );
+		return ans;
 	}
 
 	moveHash( moves ) {
@@ -116,10 +138,15 @@ class PokeCard {
 		move_wrapper.setAttribute( "class" , "move-wrapper" );
 		this.data_map[ "move-wrapper" ] = move_wrapper;
 		//
+		var tab_wrapper = document.createElement( "div" );
+		tab_wrapper.setAttribute( "id" , this.makeIdUnique( "tab-wrapper" ) );
+		tab_wrapper.setAttribute( "class" , "tab-wrapper" );
+		//
 		root.appendChild( sprite_div );
 		root.appendChild( nickname_div );
 		root.appendChild( hp_border );
 		root.appendChild( move_wrapper );
+		root.appendChild( tab_wrapper );
 		//
 		var align_span = document.createElement( "span" );
 		align_span.setAttribute( "class" , "vertical-align" );
@@ -142,15 +169,60 @@ class PokeCard {
 		nickname_div.appendChild( status_div );
 		//
 		var hp_text = document.createElement( "div" );
-		hp_text.setAttribute("id" , this.makeIdUnique( "hp-text" ) );
-		hp_text.setAttribute("class" , "hp-text");
+		hp_text.setAttribute( "id" , this.makeIdUnique( "hp-text" ) );
+		hp_text.setAttribute( "class" , "hp-text" );
 		this.data_map[ "hp-text" ] = hp_text;
 		hp_border.appendChild( hp_text );
 		var hp_bar = document.createElement( "div" );
-		hp_bar.setAttribute("id" , this.makeIdUnique( "hp-bar" ) );
-		hp_bar.setAttribute("class" , "hp-bar");
+		hp_bar.setAttribute( "id" , this.makeIdUnique( "hp-bar" ) );
+		hp_bar.setAttribute( "class" , "hp-bar");
 		this.data_map[ "hp-bar" ] = hp_bar;
 		hp_border.appendChild( hp_bar );
+		//
+		var tab_buttons = document.createElement( "div" );
+		tab_buttons.setAttribute( "id" , this.makeIdUnique( "tab-buttons" ) );
+		tab_buttons.setAttribute( "class" , "tab-buttons" );
+		//
+		var self = this;
+		var button_stats = document.createElement( "button" );
+		button_stats.setAttribute( "id" , this.makeIdUnique( "tab-button-stats" ) );
+		button_stats.setAttribute( "class" , "button-stats" );
+		button_stats.innerHTML = "Stats";
+		button_stats.onclick = function() { self.openTab( "stats" ) };
+		var button_eviv = document.createElement( "button" );
+		button_eviv.setAttribute( "id" , this.makeIdUnique( "tab-button-eviv" ) );
+		button_eviv.setAttribute( "class" , "button-eviv" );
+		button_eviv.innerHTML = "EVs & IVs";
+		button_eviv.onclick = function() { self.openTab( "eviv" ) };
+		var button_misc = document.createElement( "button" );
+		button_misc.setAttribute( "id" , this.makeIdUnique( "tab-button-misc" ) );
+		button_misc.setAttribute( "class" , "button-misc" );
+		button_misc.innerHTML = "Misc";
+		button_misc.onclick = function() { self.openTab( "misc" ) };
+		tab_buttons.appendChild( button_stats );
+		tab_buttons.appendChild( button_eviv );
+		tab_buttons.appendChild( button_misc );
+		//
+		var tab_stats = document.createElement( "div" );
+		tab_stats.setAttribute( "id" , this.makeIdUnique( "tab-stats" ) );
+		tab_stats.setAttribute( "class" , "tabs" );
+		tab_stats.setAttribute( "class" , "tab-stats" );
+		this.data_map[ "stats" ] = tab_stats;
+		var tab_eviv = document.createElement( "div" );
+		tab_eviv.setAttribute( "id" , this.makeIdUnique( "tab-eviv" ) );
+		tab_stats.setAttribute( "class" , "tabs" );
+		tab_eviv.setAttribute( "class" , "tab-eviv" );
+		this.data_map[ "eviv" ] = tab_eviv;
+		var tab_misc = document.createElement( "div" );
+		tab_misc.setAttribute( "id" , this.makeIdUnique( "tab-misc" ) );
+		tab_stats.setAttribute( "class" , "tabs" );
+		tab_misc.setAttribute( "class" , "tab-misc" );
+		this.data_map[ "misc" ] = tab_misc;
+		//
+		tab_wrapper.appendChild( tab_buttons );
+		tab_wrapper.appendChild( tab_stats );
+		tab_wrapper.appendChild( tab_eviv );
+		tab_wrapper.appendChild( tab_misc );
 		//
 		this.data_map[ "color" ] = root;
 	}
@@ -177,6 +249,13 @@ class PokeCard {
 				this.moves[i].setAlive( false );
 			}
 		}
+	}
+
+	openTab( tab ) {
+		this.data_map[ "stats" ].style.display = "none";
+		this.data_map[ "eviv" ].style.display = "none";
+		this.data_map[ "misc" ].style.display = "none";
+		this.data_map[ tab ].style.display = "block";
 	}
 
 	update( newPokemon ) {
@@ -305,6 +384,98 @@ class PokeCard {
 		}
 	}
 
+	updateStats( newPokemon ) {
+		var div = this.data_map[ "stats" ];
+		div.innerHTML = "";
+		var ul = document.createElement( "ul" );
+		//
+		var attack_li = document.createElement( "li" );
+		attack_li.innerHTML = "attack: " + newPokemon.stats.attack;
+		ul.appendChild( attack_li );
+		var defense_li = document.createElement( "li" );
+		defense_li.innerHTML = "defense: " + newPokemon.stats.defense;
+		ul.appendChild( defense_li );
+		var sp_attack_li = document.createElement( "li" );
+		sp_attack_li.innerHTML = "sp_attack: " + newPokemon.stats.sp_attack;
+		ul.appendChild( sp_attack_li );
+		var sp_defense_li = document.createElement( "li" );
+		sp_defense_li.innerHTML = "sp_defense: " + newPokemon.stats.sp_defense;
+		ul.appendChild( sp_defense_li );
+		var speed_li = document.createElement( "li" );
+		speed_li.innerHTML = "speed: " + newPokemon.stats.speed;
+		ul.appendChild( speed_li );
+		var hp_li = document.createElement( "li" );
+		hp_li.innerHTML = "hp: " + newPokemon.stats.totalHP;
+		ul.appendChild( hp_li );
+		div.appendChild( ul );
+	}
+
+	updateEVIV( newPokemon ) {
+		var div = this.data_map[ "eviv" ];
+		div.innerHTML = "";
+		var ul_ev = document.createElement( "ul" );
+		var ul_iv = document.createElement( "ul" );
+		//
+		var attack_li = document.createElement( "li" );
+		attack_li.innerHTML = "attack: " + newPokemon.EVs.attack;
+		ul_ev.appendChild( attack_li );
+		var defense_li = document.createElement( "li" );
+		defense_li.innerHTML = "defense: " + newPokemon.EVs.defense;
+		ul_ev.appendChild( defense_li );
+		var sp_attack_li = document.createElement( "li" );
+		sp_attack_li.innerHTML = "sp_attack: " + newPokemon.EVs.sp_attack;
+		ul_ev.appendChild( sp_attack_li );
+		var sp_defense_li = document.createElement( "li" );
+		sp_defense_li.innerHTML = "sp_defense: " + newPokemon.EVs.sp_defense;
+		ul_ev.appendChild( sp_defense_li );
+		var speed_li = document.createElement( "li" );
+		speed_li.innerHTML = "speed: " + newPokemon.EVs.speed;
+		ul_ev.appendChild( speed_li );
+		var hp_li = document.createElement( "li" );
+		hp_li.innerHTML = "hp: " + newPokemon.EVs.HP;
+		ul_ev.appendChild( hp_li );
+		div.appendChild( ul_ev );
+		//
+		var attack_li = document.createElement( "li" );
+		attack_li.innerHTML = "attack: " + newPokemon.IVs.attack;
+		ul_iv.appendChild( attack_li );
+		var defense_li = document.createElement( "li" );
+		defense_li.innerHTML = "defense: " + newPokemon.IVs.defense;
+		ul_iv.appendChild( defense_li );
+		var sp_attack_li = document.createElement( "li" );
+		sp_attack_li.innerHTML = "sp_attack: " + newPokemon.IVs.sp_attack;
+		ul_iv.appendChild( sp_attack_li );
+		var sp_defense_li = document.createElement( "li" );
+		sp_defense_li.innerHTML = "sp_defense: " + newPokemon.IVs.sp_defense;
+		ul_iv.appendChild( sp_defense_li );
+		var speed_li = document.createElement( "li" );
+		speed_li.innerHTML = "speed: " + newPokemon.IVs.speed;
+		ul_iv.appendChild( speed_li );
+		var hp_li = document.createElement( "li" );
+		hp_li.innerHTML = "hp: " + newPokemon.IVs.HP;
+		ul_iv.appendChild( hp_li );
+		div.appendChild( ul_iv );
+	}
+
+	updateMisc( newPokemon ) {
+		var div = this.data_map[ "misc" ];
+		div.innerHTML = "";
+		var ul = document.createElement( "ul" );
+		//
+		var exp_li = document.createElement( "li" );
+		exp_li.innerHTML = "exp: " + newPokemon.stats.exp;
+		ul.appendChild( exp_li );
+		var friendship_li = document.createElement( "li" );
+		friendship_li.innerHTML = "friendship: " + newPokemon.stats.friendship;
+		ul.appendChild( friendship_li );
+		var met_location_li = document.createElement( "li" );
+		met_location_li.innerHTML = "met_location: " + newPokemon.misc.met_location_name;
+		ul.appendChild( met_location_li );
+		var personality_li = document.createElement( "li" );
+		personality_li.innerHTML = "personality: " + newPokemon.personality_value;
+		ul.appendChild( personality_li );
+		div.appendChild( ul );
+	}
 }
 
 class PokeMoveCard {
@@ -353,7 +524,7 @@ class PokeMoveCard {
 
 	setAlive( alive ) {
 		if ( alive ) {
-			this.root.style.visibility = "visible";
+			this.root.style.visibility = "inherit";
 		} else {
 			this.root.style.visibility = "hidden";
 		}

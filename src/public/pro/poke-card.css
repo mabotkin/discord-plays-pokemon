@@ -116,3 +116,15 @@
 	margin-right: 8px;
 	padding-top: 2px;
 }
+.tab-wrapper {
+	position: relative;
+	margin-top: 55px; /* this is bad i think */
+}
+.tab-stats {
+}
+.tab-eviv {
+	display:none;
+}
+.tab-misc {
+	display:none;
+}
