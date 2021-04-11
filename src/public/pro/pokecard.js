@@ -26,6 +26,22 @@ function colorLookup( type ) {
 	}
 }
 
+function statusColor( s ) {
+	var table = {
+		"SLP" : "#C0C0C0",
+		"FRZ" : "#87E0ED",
+		"BRN" : "#F08030",
+		"PAR" : "#DAE673",
+		"PSN" : "#914DBF",
+		"BAD PSN" : "#914DBF",
+	}
+	if ( s in table ) {
+		return table[ s ];
+	} else {
+		return "#FFFFFF";
+	}
+}
+
 class PokeCard {
 	constructor( uuid="no-uuid" , mirror=false ) {
 		this.pokemon = undefined;
@@ -40,7 +56,8 @@ class PokeCard {
 			"name" : [ (p) => [ p.info.nickname , p.info.species_name , p.stats.level ] , (x) => this.updateName(x) ] ,
 			"color" : [ (p) => [ p.info.pokedex_id ] , (x) => this.updateColor(x) ] ,
 			"hp" : [ (p) => [ p.stats.currentHP , p.stats.totalHP ] , (x) => this.updateHP(x) ] ,
-			"moves" : [ (p) => [ this.moveHash( p.moves ) ] , (x) => this.updateMoves(x) ]
+			"moves" : [ (p) => [ this.moveHash( p.moves ) ] , (x) => this.updateMoves(x) ] ,
+			"status" : [ (p) => [ p.stats.status ] , (x) => this.updateStatus(x) ]
 		};
 	}
 
@@ -53,6 +70,7 @@ class PokeCard {
 		</div>
 		<div id="nicknamediv-#" class="nicknamediv">
 			<p id="name-#"></p>
+			<div id="status-div-#"></div>
 		</div>
 		<div class="hp-border">
 			<div id="hp-text-#" class="hp-text"></div>
@@ -117,6 +135,11 @@ class PokeCard {
 		name_p.style.margin = "0px";
 		this.data_map[ "name" ] = name_p;
 		nickname_div.appendChild( name_p );
+		var status_div = document.createElement( "span" );
+		status_div.setAttribute( "id" , this.makeIdUnique( "status-div" ) );
+		status_div.setAttribute( "class" , "status-div" );
+		this.data_map[ "status" ] = status_div;
+		nickname_div.appendChild( status_div );
 		//
 		var hp_text = document.createElement( "div" );
 		hp_text.setAttribute("id" , this.makeIdUnique( "hp-text" ) );
@@ -145,8 +168,14 @@ class PokeCard {
 	setAlive( alive ) {
 		if ( alive ) {
 			this.root.style.visibility = "visible";
+			for ( var i = 0 ; i < this.moves.length ; i++ ) {
+				this.moves[i].setAlive( true );
+			}
 		} else {
 			this.root.style.visibility = "hidden";
+			for ( var i = 0 ; i < this.moves.length ; i++ ) {
+				this.moves[i].setAlive( false );
+			}
 		}
 	}
 
@@ -241,6 +270,40 @@ class PokeCard {
 		}
 	}
 
+	updateStatus( newPokemon ) {
+		var status_div = this.data_map[ "status" ];
+		var stat = newPokemon.stats.status;
+		var status_message = "";
+		var color = "";
+		if ( stat.sleep != 0 ) {
+			status_message = "SLP (" + stat.sleep + ")";
+			color = statusColor( "SLP" );
+		} else {
+			if ( stat.burn ) {
+				status_message = "BRN";
+				color = statusColor( "BRN" );
+			} else if ( stat.freeze ) {
+				status_message = "FRZ";
+				color = statusColor( "FRZ" );
+			} else if ( stat.paralysis ) {
+				status_message = "PAR";
+				color = statusColor( "PAR" );
+			} else if ( stat.poison ) {
+				status_message = "PSN";
+				color = statusColor( "PSN" );
+			} else if ( stat.bad_poison ) {
+				status_message = "BAD PSN";
+				color = statusColor( "BAD PSN" );
+			}
+		}
+		if ( status_message != "" ) {
+			status_div.style.visibility = "inherit";
+			status_div.style.backgroundColor = color;
+			status_div.innerHTML = status_message;
+		} else {
+			status_div.style.visibility = "hidden";
+		}
+	}
 
 }
 

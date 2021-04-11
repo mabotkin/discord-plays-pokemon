@@ -1,9 +1,11 @@
 var socket = io();
+
 document.addEventListener('DOMContentLoaded', function() {
 	if ( !socket.connected ) {
 		document.getElementById( "viewers" ).innerHTML = "You are disconnected from the server.  Only one instance is allowed to connect per IP.  If you believe this is a mistake, please wait 5 seconds and refresh.";
 	}
 }, false);
+
 socket.on( "canvasData" , ( data ) => { 
 	var canvas = document.getElementById('screen');
 	var context = canvas.getContext('2d');
@@ -13,6 +15,7 @@ socket.on( "canvasData" , ( data ) => {
 	}
 	img.src = "data:image/png;base64," + data;
 });
+
 socket.on( "input" , ( data ) => {
 	ul = document.getElementById( "inputs" );
 	ul.appendChild( makeli( data ) );
@@ -21,18 +24,15 @@ socket.on( "input" , ( data ) => {
 	}
 	ul.scrollTop = ul.scrollHeight;
 });
+
 socket.on( "viewers" , ( data ) => {
 	var viewers = parseInt( data );
 	document.getElementById( "viewers" ).innerHTML = "Viewers: " + viewers;
 });
+
 var party_pokemon_cards = [];
 var enemy_pokemon_cards = [];
-var playerX = -1;
-var playerY = -1;
-function clearEnemyPokemon() {
-	enemy_pokemon_cards = [];
-	document.getElementById( 'party-enemy' ).innerHTML = "";
-}
+
 socket.on( "gameData" , ( data ) => {
 	console.log( data );
 	// preload
@@ -57,27 +57,17 @@ socket.on( "gameData" , ( data ) => {
 	for ( var i = 0 ; i < 6 ; i++ ) {
 		enemy_pokemon_cards[i].update( data.enemyPokemon[i] );
 	}
-	/*
-	if ( data.playerX != playerX || data.playerY != playerY ) {
-		// trigger out of battle
-		clearEnemyPokemon();
-		data.playerX = playerX;
-		data.playerY = playerY;
+	if ( enemy_pokemon_cards.length >= 1 && data.catchRate != 0 && !( data.catchRate === undefined ) ) {
+		var catchrate_div = document.getElementById( "catchrate" );
+		catchrate_div.style.visibility = "visible";
+		document.getElementById( "pokeball-catchrate" ).innerHTML = data.catchRate.pokeball + " (" + ( 100 * data.catchRate.pokeball / 255.0 ).toFixed(3) + "%)";
+		document.getElementById( "greatball-catchrate" ).innerHTML = data.catchRate.greatball + " (" + ( 100 * data.catchRate.greatball / 255.0 ).toFixed(3) + "%)";
+		document.getElementById( "ultraball-catchrate" ).innerHTML = data.catchRate.ultraball + " (" + ( 100 * data.catchRate.ultraball / 255.0 ).toFixed(3) + "%)";
+	} else {
+		document.getElementById("catchrate").style.visibility = "hidden";
 	}
-	*/
-	/*
-	var partyCards = document.getElementById('party');
-	partyCards.innerHTML = '';
-	for(var i = 0; i < data.partyPokemon.length; i++) {
-		var p = data.partyPokemon[i];
-		var card = document.createElement('poke-card');
-		card.setAttribute('no', p.info.pokedex_id);
-		card.setAttribute('nickname', p.info.nickname);
-		card.setAttribute('type',JSON.stringify( p.info.type ));
-		partyCards.appendChild(card);
-	}
-	*/
 });
+
 function makeli( data ) {
 	var li = document.createElement("li");
 	var now = new Date();
@@ -89,6 +79,7 @@ function makeli( data ) {
 	li.setAttribute('class', 'pokebullet');
 	return li;
 }
+
 function formatTime( time ) {
 	return time.toLocaleTimeString();
 }

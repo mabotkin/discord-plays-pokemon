@@ -98,3 +98,15 @@
 .move-pp-div {
 	float: right;
 }
+.status-div {
+	border: 1px solid #000000;
+	width: 60px;
+	text-align: center;
+	height: 20%;
+	font-size: small;
+	float: right;
+	border-radius: 5px;
+	margin-top: -20px; /* fml i hate this */
+	margin-right: 8px;
+	padding-top: 2px;
+}

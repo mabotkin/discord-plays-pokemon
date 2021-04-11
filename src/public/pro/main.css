@@ -51,4 +51,29 @@ p {
     margin: 5px;
     position: absolute;
     width: 25%;
+	z-index: 2;
+}
+#catchrate {
+	width: 5.5%;
+	height: 80px;
+	margin-top: 17px;
+	visibility: hidden;
+	position: absolute;
+	right: 25%;
+	z-index: 1;
+	border-radius: 5px;
+	background: #454545;
+	text-align: left;
+	font-size: x-small;
+}
+#catchrate:hover {
+	box-shadow: 5px 5px 10px 0 rgba(255,255,255,0.2);
+}
+.catchrate-ball {
+	margin: 0px;
+	padding: 0px;
+	height: 33%;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
 }
