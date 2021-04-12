@@ -386,28 +386,53 @@ class PokeCard {
 
 	updateStats( newPokemon ) {
 		var div = this.data_map[ "stats" ];
+		div.setAttribute( "class" , "stats-radar-div" );
 		div.innerHTML = "";
-		var ul = document.createElement( "ul" );
-		//
-		var attack_li = document.createElement( "li" );
-		attack_li.innerHTML = "attack: " + newPokemon.stats.attack;
-		ul.appendChild( attack_li );
-		var defense_li = document.createElement( "li" );
-		defense_li.innerHTML = "defense: " + newPokemon.stats.defense;
-		ul.appendChild( defense_li );
-		var sp_attack_li = document.createElement( "li" );
-		sp_attack_li.innerHTML = "sp_attack: " + newPokemon.stats.sp_attack;
-		ul.appendChild( sp_attack_li );
-		var sp_defense_li = document.createElement( "li" );
-		sp_defense_li.innerHTML = "sp_defense: " + newPokemon.stats.sp_defense;
-		ul.appendChild( sp_defense_li );
-		var speed_li = document.createElement( "li" );
-		speed_li.innerHTML = "speed: " + newPokemon.stats.speed;
-		ul.appendChild( speed_li );
-		var hp_li = document.createElement( "li" );
-		hp_li.innerHTML = "hp: " + newPokemon.stats.totalHP;
-		ul.appendChild( hp_li );
-		div.appendChild( ul );
+		var canvas = document.createElement( "canvas" );
+		canvas.setAttribute( "id" , this.makeIdUnique( "stats-radar" ) );
+		const data = {
+		labels: [
+			'Attack',
+			'Defense',
+			'Special Attack',
+			'Special Defense',
+			'Speed',
+			'HP'
+		],
+		datasets: [{
+			data: [ 
+				newPokemon.stats.attack , 
+				newPokemon.stats.defense , 
+				newPokemon.stats.sp_attack , 
+				newPokemon.stats.sp_defense ,
+				newPokemon.stats.speed ,
+				newPokemon.stats.totalHP
+			],
+			fill: true,
+			backgroundColor: 'rgba(255, 99, 132, 0.2)',
+			borderColor: 'rgb(255, 99, 132)',
+			pointBackgroundColor: 'rgb(255, 99, 132)',
+			pointBorderColor: '#fff',
+			pointHoverBackgroundColor: '#fff',
+			pointHoverBorderColor: 'rgb(255, 99, 132)'
+		}]
+		};
+		const config = {
+			type: 'radar',
+			data: data,
+			options: {
+				elements: {
+					line: {
+						borderWidth: 3
+					}
+				}
+			},
+		};
+		div.appendChild( canvas );
+		var myChart = new Chart(
+			canvas ,
+			config
+		);
 	}
 
 	updateEVIV( newPokemon ) {
