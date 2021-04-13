@@ -199,7 +199,7 @@ exports.moves = [ {} , {"name": "Pound", "type": "Normal", "category": "Physical
 {"name": "Lock-On", "type": "Normal", "category": "Status", "contest": "Clever", "pp": 5, "power": -1, "accuracy": -1, "gen": 2} ,
 {"name": "Outrage", "type": "Dragon", "category": "Physical", "contest": "Cool", "pp": 10, "power": 120, "accuracy": 120, "gen": 2} ,
 {"name": "Sandstorm", "type": "Rock", "category": "Status", "contest": "Tough", "pp": 10, "power": -1, "accuracy": -1, "gen": 2} ,
-{"name": "Giga Drain", "type": "Grass", "category": "Special", "contest": "Clever", "pp": 10, "power": 75, "accuracy": 75, "gen": 2} ,
+{"name": "Giga Drain", "type": "Grass", "category": "Special", "contest": "Clever", "pp": 5, "power": 75, "accuracy": 75, "gen": 2} ,
 {"name": "Endure", "type": "Normal", "category": "Status", "contest": "Tough", "pp": 10, "power": -1, "accuracy": -1, "gen": 2} ,
 {"name": "Charm", "type": "Fairy", "category": "Status", "contest": "Cute", "pp": 20, "power": -1, "accuracy": -1, "gen": 2} ,
 {"name": "Rollout", "type": "Rock", "category": "Physical", "contest": "Cute", "pp": 20, "power": 30, "accuracy": 30, "gen": 2} ,

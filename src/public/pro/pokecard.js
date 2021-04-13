@@ -58,7 +58,7 @@ class PokeCard {
 			"hp" : [ (p) => [ p.stats.currentHP , p.stats.totalHP ] , (x) => this.updateHP(x) ] ,
 			"moves" : [ (p) => [ this.moveHash( p.moves ) ] , (x) => this.updateMoves(x) ] ,
 			"status" : [ (p) => [ p.stats.status ] , (x) => this.updateStatus(x) ] ,
-			"stats" : [ (p) => [ p.stats.stats ] , (x) => this.updateStats(x) ] ,
+			"stats" : [ (p) => [ this.statsHash( p ) ] , (x) => this.updateStats(x) ] ,
 			"eviv" : [ (p) => [ p.EVs , p.IVs ] , (x) => this.updateEVIV(x) ] ,
 			"misc" : [ (p) => [ this.miscHash( p ) ] , (x) => this.updateMisc(x) ] 
 		};
@@ -96,6 +96,17 @@ class PokeCard {
 
 	makeIdUnique( id ) {
 		return id + "-" + this.uuid;
+	}
+
+	statsHash( p ) {
+		var ans = [];
+		ans.push( p.stats.attack );
+		ans.push( p.stats.defense );
+		ans.push( p.stats.sp_attack );
+		ans.push( p.stats.sp_defense );
+		ans.push( p.stats.speed );
+		ans.push( p.stats.totalHP );
+		return ans;
 	}
 
 	miscHash( p ) {
@@ -302,7 +313,11 @@ class PokeCard {
 
 	updateName( newPokemon ) {
 		var name = this.data_map[ "name" ];
-		name.innerHTML = newPokemon.info.nickname + " &#9830;&#9830;&#9830; " + newPokemon.info.species_name + " lvl. " + newPokemon.stats.level;;
+		var egg = "";
+		if ( newPokemon.misc.is_egg ) {
+			egg = "(Egg)";
+		}
+		name.innerHTML = newPokemon.info.nickname + " &#9830;&#9830;&#9830; " + newPokemon.info.species_name + " lvl. " + newPokemon.stats.level + " " + egg;
 	}
 
 	updateHP( newPokemon ) {
@@ -390,6 +405,7 @@ class PokeCard {
 		div.innerHTML = "";
 		var canvas = document.createElement( "canvas" );
 		canvas.setAttribute( "id" , this.makeIdUnique( "stats-radar" ) );
+		canvas.setAttribute( "class" , "stats-radar-canvas" );
 		const data = {
 		labels: [
 			'Attack',
@@ -421,6 +437,9 @@ class PokeCard {
 			type: 'radar',
 			data: data,
 			options: {
+				legend: {
+					display: false // WTF???
+				},
 				elements: {
 					line: {
 						borderWidth: 3
@@ -556,7 +575,7 @@ class PokeMoveCard {
 	}
 
 	update( newMove ) {
-		if ( newMove === undefined ) {
+		if ( newMove.id == 0 ) {
 			this.setAlive( false );
 			return;
 		}
