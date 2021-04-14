@@ -314,35 +314,15 @@ class PokeCard {
 		var shortCircuit = ( this.pokemon === undefined );
 		for ( var protocol in this.update_protocols ) {
 			var protocol_data = this.update_protocols[ protocol ];
-			if ( shortCircuit || ( protocol_data[0]( this.pokemon ) != protocol_data[0]( newPokemon ) ) ) {
+			if ( shortCircuit || ( JSON.stringify( protocol_data[0]( this.pokemon ) ) != JSON.stringify( protocol_data[0]( newPokemon ) ) ) ) {
 				protocol_data[1]( newPokemon );
 			}
 		}
 		this.pokemon = newPokemon;
-		/*
-		if ( shortCircuit || ( this.pokemon.info.pokedex_id != newPokemon.info.pokedex_id ) ) {
-			this.updateSprite( newPokemon );
-		}
-		if ( shortCircuit || ( this.pokemon.info.nickname != newPokemon.info.nickname ) ) {
-			this.updateNickname( newPokemon );
-		}
-		if ( shortCircuit || ( this.pokemon.info.pokedex_id != newPokemon.info.pokedex_id ) ) {
-			this.updateColor( newPokemon );
-		}
-		if ( shortCircuit || ( this.pokemon.info.species_name != newPokemon.info.species_name ) || ( this.pokemon.stats.level != newPokemon.stats.level ) ) {
-			this.updateSpeciesLvl( newPokemon );
-		}
-		*/
 	}
 
 	updateSprite( newPokemon ) {
 		var sprite = this.data_map[ "sprite" ];
-		/*
-		sprite.onload = function() {
-			this.style.width = this.width * 0.75;
-			this.style.height = 'auto';
-		}
-		*/
 		sprite.src = '../assets/sprites/' + (newPokemon.info.pokedex_id + "").padStart(3, '0') + '.gif';
 	}
 
@@ -465,7 +445,9 @@ class PokeCard {
 				"#6890F0",
 				"#78C850",
 				"#F85888"
-			]
+			],
+			borderColor: "#000000",
+			borderWidth: 1
 		}]
 		};
 		const config = {
@@ -476,7 +458,19 @@ class PokeCard {
 				maintainAspectRatio: false ,
 				scales: {
 					x: {
-						beginAtZero: true
+						beginAtZero: true,
+						ticks: {
+							color: "#FFFFFF",
+							textStrokeColor: "#000000",
+							textStrokeWidth: 2
+						}
+					},
+					y: {
+						ticks: {
+							color: "#FFFFFF",
+							textStrokeColor: "#000000",
+							textStrokeWidth: 2
+						}
 					}
 				},
 				layout: {
@@ -513,26 +507,41 @@ class PokeCard {
 			'HP',
 			'Attack',
 			'Defense',
-			'Sp. Atk',
+			'Speed',
 			'Sp. Def',
-			'Speed'
+			'Sp. Atk'
 		],
 		datasets: [{
 			data: [
 				newPokemon.EVs.HP ,
 				newPokemon.EVs.attack ,
 				newPokemon.EVs.defense ,
-				newPokemon.EVs.sp_attack ,
+				newPokemon.EVs.speed ,
 				newPokemon.EVs.sp_defense ,
-				newPokemon.EVs.speed
+				newPokemon.EVs.sp_attack
 			],
 			fill: true,
 			backgroundColor: 'rgba( 0 , 0 , 0 , 0.2 )',
 			borderColor: 'rgb( 0 , 0 , 0 )',
-			pointBackgroundColor: 'rgb( 0 , 0 , 0 )',
+			borderWidth: 1,
+			pointBackgroundColor: [
+				"#FF0000",
+				"#F08030",
+				"#F8D030",
+				"#F85888",
+				"#78C850",
+				"#6890F0"
+			],
 			pointBorderColor: '#fff',
 			pointHoverBackgroundColor: '#fff',
-			pointHoverBorderColor: 'rgb( 0 , 0 , 0 )'
+			pointHoverBorderColor: [
+				"#FF0000",
+				"#F08030",
+				"#F8D030",
+				"#F85888",
+				"#78C850",
+				"#6890F0"
+			]
 		}]
 		};
 		const config_ev = {
@@ -549,6 +558,16 @@ class PokeCard {
 					legend: {
 						display: false
 					}
+				},
+				scales: {
+					r: {
+						//min: 0,
+						//max: 256,
+						ticks: {
+							showLabelBackdrop: false
+						//	stepSize: 64
+						}
+					}
 				}
 			}
 		};
@@ -563,26 +582,41 @@ class PokeCard {
 			'HP',
 			'Attack',
 			'Defense',
-			'Sp. Atk',
+			'Speed',
 			'Sp. Def',
-			'Speed'
+			'Sp. Atk'
 		],
 		datasets: [{
 			data: [
 				newPokemon.IVs.HP ,
 				newPokemon.IVs.attack ,
 				newPokemon.IVs.defense ,
-				newPokemon.IVs.sp_attack ,
+				newPokemon.IVs.speed ,
 				newPokemon.IVs.sp_defense ,
-				newPokemon.IVs.speed
+				newPokemon.IVs.sp_attack
 			],
 			fill: true,
 			backgroundColor: 'rgba( 0 , 0 , 0 , 0.2 )',
 			borderColor: 'rgb( 0 , 0 , 0 )',
-			pointBackgroundColor: 'rgb( 0 , 0 , 0 )',
+			borderWidth: 1,
+			pointBackgroundColor: [
+				"#FF0000",
+				"#F08030",
+				"#F8D030",
+				"#F85888",
+				"#78C850",
+				"#6890F0"
+			],
 			pointBorderColor: '#fff',
 			pointHoverBackgroundColor: '#fff',
-			pointHoverBorderColor: 'rgb( 0 , 0 , 0 )'
+			pointHoverBorderColor: [
+				"#FF0000",
+				"#F08030",
+				"#F8D030",
+				"#F85888",
+				"#78C850",
+				"#6890F0"
+			]
 		}]
 		};
 		const config_iv = {
@@ -597,6 +631,16 @@ class PokeCard {
 				plugins: {
 					legend: {
 						display: false
+					}
+				},
+				scales: {
+					r: {
+						min: 0,
+						max: 32,
+						ticks: {
+							showLabelBackdrop: false,
+							stepSize: 8
+						}
 					}
 				}
 			}
