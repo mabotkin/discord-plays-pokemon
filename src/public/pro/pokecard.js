@@ -42,6 +42,18 @@ function statusColor( s ) {
 	}
 }
 
+function hexToRGB(hex, alpha) {
+	var r = parseInt(hex.slice(1, 3), 16),
+	g = parseInt(hex.slice(3, 5), 16),
+	b = parseInt(hex.slice(5, 7), 16);
+
+	if (alpha) {
+		return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
+	} else {
+		return "rgb(" + r + ", " + g + ", " + b + ")";
+	}
+}
+
 class PokeCard {
 	constructor( uuid="no-uuid" , mirror=false ) {
 		this.pokemon = undefined;
@@ -313,11 +325,11 @@ class PokeCard {
 
 	updateName( newPokemon ) {
 		var name = this.data_map[ "name" ];
-		var egg = "";
+		var egg = " ";
 		if ( newPokemon.misc.is_egg ) {
-			egg = "(Egg)";
+			egg = " (Egg)";
 		}
-		name.innerHTML = newPokemon.info.nickname + " &#9830;&#9830;&#9830; " + newPokemon.info.species_name + " lvl. " + newPokemon.stats.level + " " + egg;
+		name.innerHTML = newPokemon.info.nickname + " &#9830;&#9830;&#9830; " + newPokemon.info.species_name + " lvl. " + newPokemon.stats.level + egg;
 	}
 
 	updateHP( newPokemon ) {
@@ -425,27 +437,29 @@ class PokeCard {
 				newPokemon.stats.totalHP
 			],
 			fill: true,
-			backgroundColor: 'rgba(255, 99, 132, 0.2)',
-			borderColor: 'rgb(255, 99, 132)',
-			pointBackgroundColor: 'rgb(255, 99, 132)',
+			backgroundColor: 'rgba( 0 , 0 , 0 , 0.2 )',
+			borderColor: 'rgb( 0 , 0 , 0 )',
+			pointBackgroundColor: 'rgb( 0 , 0 , 0 )',
 			pointBorderColor: '#fff',
 			pointHoverBackgroundColor: '#fff',
-			pointHoverBorderColor: 'rgb(255, 99, 132)'
+			pointHoverBorderColor: 'rgb( 0 , 0 , 0 )'
 		}]
 		};
 		const config = {
 			type: 'radar',
 			data: data,
 			options: {
-				legend: {
-					display: false // WTF???
+				layout: {
+					padding: {
+						left: 10
+					}
 				},
-				elements: {
-					line: {
-						borderWidth: 3
+				plugins: {
+					legend: {
+						display: false
 					}
 				}
-			},
+			}
 		};
 		div.appendChild( canvas );
 		var myChart = new Chart(
