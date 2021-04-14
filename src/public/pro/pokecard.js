@@ -42,18 +42,6 @@ function statusColor( s ) {
 	}
 }
 
-function hexToRGB(hex, alpha) {
-	var r = parseInt(hex.slice(1, 3), 16),
-	g = parseInt(hex.slice(3, 5), 16),
-	b = parseInt(hex.slice(5, 7), 16);
-
-	if (alpha) {
-		return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
-	} else {
-		return "rgb(" + r + ", " + g + ", " + b + ")";
-	}
-}
-
 class PokeCard {
 	constructor( uuid="no-uuid" , mirror=false ) {
 		this.pokemon = undefined;
@@ -99,6 +87,8 @@ class PokeCard {
 			<div id="tab-stats-# class="tab-stats">
 			</div>
 			<div id="tab-eviv-# class="tab-eviv">
+			</div>
+			<div id="tab-moves-# class="tab-moves">
 			</div>
 			<div id="tab-misc-# class="tab-misc">
 			</div>
@@ -209,42 +199,69 @@ class PokeCard {
 		var self = this;
 		var button_stats = document.createElement( "button" );
 		button_stats.setAttribute( "id" , this.makeIdUnique( "tab-button-stats" ) );
-		button_stats.setAttribute( "class" , "button-stats" );
+		button_stats.setAttribute( "class" , "tab-button" );
 		button_stats.innerHTML = "Stats";
 		button_stats.onclick = function() { self.openTab( "stats" ) };
+		this.data_map[ "stats-button"] = button_stats;
 		var button_eviv = document.createElement( "button" );
 		button_eviv.setAttribute( "id" , this.makeIdUnique( "tab-button-eviv" ) );
-		button_eviv.setAttribute( "class" , "button-eviv" );
+		button_eviv.setAttribute( "class" , "tab-button" );
 		button_eviv.innerHTML = "EVs & IVs";
 		button_eviv.onclick = function() { self.openTab( "eviv" ) };
+		this.data_map[ "eviv-button"] = button_eviv;
+		var button_moves = document.createElement( "button" );
+		button_moves.setAttribute( "id" , this.makeIdUnique( "tab-button-moves" ) );
+		button_moves.setAttribute( "class" , "tab-button" );
+		button_moves.innerHTML = "Moves";
+		button_moves.onclick = function() { self.openTab( "moves" ) };
+		this.data_map[ "moves-button"] = button_moves;
 		var button_misc = document.createElement( "button" );
 		button_misc.setAttribute( "id" , this.makeIdUnique( "tab-button-misc" ) );
-		button_misc.setAttribute( "class" , "button-misc" );
+		button_misc.setAttribute( "class" , "tab-button" );
 		button_misc.innerHTML = "Misc";
 		button_misc.onclick = function() { self.openTab( "misc" ) };
+		this.data_map[ "misc-button"] = button_misc;
 		tab_buttons.appendChild( button_stats );
 		tab_buttons.appendChild( button_eviv );
+		tab_buttons.appendChild( button_moves );
 		tab_buttons.appendChild( button_misc );
 		//
 		var tab_stats = document.createElement( "div" );
 		tab_stats.setAttribute( "id" , this.makeIdUnique( "tab-stats" ) );
-		tab_stats.setAttribute( "class" , "tabs" );
 		tab_stats.setAttribute( "class" , "tab-stats" );
 		this.data_map[ "stats" ] = tab_stats;
+		//
+		button_stats.classList.add( "tab-button-selected" );
+		//
 		var tab_eviv = document.createElement( "div" );
 		tab_eviv.setAttribute( "id" , this.makeIdUnique( "tab-eviv" ) );
-		tab_stats.setAttribute( "class" , "tabs" );
 		tab_eviv.setAttribute( "class" , "tab-eviv" );
 		this.data_map[ "eviv" ] = tab_eviv;
+		//
+		var tab_eviv_ev = document.createElement( "div" );
+		var tab_eviv_iv = document.createElement( "div" );
+		tab_eviv_ev.setAttribute( "id" , this.makeIdUnique( "tab-eviv-ev" ) );
+		tab_eviv_iv.setAttribute( "id" , this.makeIdUnique( "tab-eviv-iv" ) );
+		tab_eviv_ev.setAttribute( "class" , "tab-eviv-ev" );
+		tab_eviv_iv.setAttribute( "class" , "tab-eviv-iv" );
+		this.data_map[ "eviv-ev" ] = tab_eviv_ev;
+		this.data_map[ "eviv-iv" ] = tab_eviv_iv;
+		tab_eviv.appendChild( tab_eviv_ev );
+		tab_eviv.appendChild( tab_eviv_iv );
+		//
+		var tab_moves = document.createElement( "div" );
+		tab_moves.setAttribute( "id" , this.makeIdUnique( "tab-moves" ) );
+		tab_moves.setAttribute( "class" , "tab-moves" );
+		this.data_map[ "moves" ] = tab_moves;
 		var tab_misc = document.createElement( "div" );
 		tab_misc.setAttribute( "id" , this.makeIdUnique( "tab-misc" ) );
-		tab_stats.setAttribute( "class" , "tabs" );
 		tab_misc.setAttribute( "class" , "tab-misc" );
 		this.data_map[ "misc" ] = tab_misc;
 		//
 		tab_wrapper.appendChild( tab_buttons );
 		tab_wrapper.appendChild( tab_stats );
 		tab_wrapper.appendChild( tab_eviv );
+		tab_wrapper.appendChild( tab_moves );
 		tab_wrapper.appendChild( tab_misc );
 		//
 		this.data_map[ "color" ] = root;
@@ -277,8 +294,14 @@ class PokeCard {
 	openTab( tab ) {
 		this.data_map[ "stats" ].style.display = "none";
 		this.data_map[ "eviv" ].style.display = "none";
+		this.data_map[ "moves" ].style.display = "none";
 		this.data_map[ "misc" ].style.display = "none";
+		this.data_map[ "stats-button" ].classList.remove( "tab-button-selected" );
+		this.data_map[ "eviv-button" ].classList.remove( "tab-button-selected" );
+		this.data_map[ "moves-button" ].classList.remove( "tab-button-selected" );
+		this.data_map[ "misc-button" ].classList.remove( "tab-button-selected" );
 		this.data_map[ tab ].style.display = "block";
+		this.data_map[ tab + "-button" ].classList.add( "tab-button-selected" );
 	}
 
 	update( newPokemon ) {
@@ -413,46 +436,51 @@ class PokeCard {
 
 	updateStats( newPokemon ) {
 		var div = this.data_map[ "stats" ];
-		div.setAttribute( "class" , "stats-radar-div" );
 		div.innerHTML = "";
 		var canvas = document.createElement( "canvas" );
-		canvas.setAttribute( "id" , this.makeIdUnique( "stats-radar" ) );
-		canvas.setAttribute( "class" , "stats-radar-canvas" );
+		canvas.setAttribute( "id" , this.makeIdUnique( "stats-bar" ) );
+		canvas.setAttribute( "class" , "stats-bar-canvas" );
 		const data = {
 		labels: [
+			'HP',
 			'Attack',
 			'Defense',
-			'Special Attack',
-			'Special Defense',
-			'Speed',
-			'HP'
+			'Sp. Atk',
+			'Sp. Def',
+			'Speed'
 		],
 		datasets: [{
 			data: [ 
+				newPokemon.stats.totalHP ,
 				newPokemon.stats.attack , 
 				newPokemon.stats.defense , 
 				newPokemon.stats.sp_attack , 
 				newPokemon.stats.sp_defense ,
-				newPokemon.stats.speed ,
-				newPokemon.stats.totalHP
+				newPokemon.stats.speed
 			],
-			fill: true,
-			backgroundColor: 'rgba( 0 , 0 , 0 , 0.2 )',
-			borderColor: 'rgb( 0 , 0 , 0 )',
-			pointBackgroundColor: 'rgb( 0 , 0 , 0 )',
-			pointBorderColor: '#fff',
-			pointHoverBackgroundColor: '#fff',
-			pointHoverBorderColor: 'rgb( 0 , 0 , 0 )'
+			backgroundColor: [
+				"#FF0000",
+				"#F08030",
+				"#F8D030",
+				"#6890F0",
+				"#78C850",
+				"#F85888"
+			]
 		}]
 		};
 		const config = {
-			type: 'radar',
+			type: 'bar',
 			data: data,
 			options: {
-				layout: {
-					padding: {
-						left: 10
+				indexAxis : "y" ,
+				maintainAspectRatio: false ,
+				scales: {
+					x: {
+						beginAtZero: true
 					}
+				},
+				layout: {
+					padding: 10
 				},
 				plugins: {
 					legend: {
@@ -469,50 +497,115 @@ class PokeCard {
 	}
 
 	updateEVIV( newPokemon ) {
-		var div = this.data_map[ "eviv" ];
-		div.innerHTML = "";
-		var ul_ev = document.createElement( "ul" );
-		var ul_iv = document.createElement( "ul" );
+		var div_ev = this.data_map[ "eviv-ev" ];
+		var div_iv = this.data_map[ "eviv-iv" ];
+		div_ev.innerHTML = "";
+		div_iv.innerHTML = "";
+		var canvas_ev = document.createElement( "canvas" );
+		var canvas_iv = document.createElement( "canvas" );
+		canvas_ev.setAttribute( "id" , this.makeIdUnique( "ev-radar" ) );
+		canvas_iv.setAttribute( "id" , this.makeIdUnique( "iv-radar" ) );
+		canvas_ev.setAttribute( "class" , "ev-radar-canvas" );
+		canvas_iv.setAttribute( "class" , "iv-radar-canvas" );
 		//
-		var attack_li = document.createElement( "li" );
-		attack_li.innerHTML = "attack: " + newPokemon.EVs.attack;
-		ul_ev.appendChild( attack_li );
-		var defense_li = document.createElement( "li" );
-		defense_li.innerHTML = "defense: " + newPokemon.EVs.defense;
-		ul_ev.appendChild( defense_li );
-		var sp_attack_li = document.createElement( "li" );
-		sp_attack_li.innerHTML = "sp_attack: " + newPokemon.EVs.sp_attack;
-		ul_ev.appendChild( sp_attack_li );
-		var sp_defense_li = document.createElement( "li" );
-		sp_defense_li.innerHTML = "sp_defense: " + newPokemon.EVs.sp_defense;
-		ul_ev.appendChild( sp_defense_li );
-		var speed_li = document.createElement( "li" );
-		speed_li.innerHTML = "speed: " + newPokemon.EVs.speed;
-		ul_ev.appendChild( speed_li );
-		var hp_li = document.createElement( "li" );
-		hp_li.innerHTML = "hp: " + newPokemon.EVs.HP;
-		ul_ev.appendChild( hp_li );
-		div.appendChild( ul_ev );
+		const ev_data = {
+		labels: [
+			'HP',
+			'Attack',
+			'Defense',
+			'Sp. Atk',
+			'Sp. Def',
+			'Speed'
+		],
+		datasets: [{
+			data: [
+				newPokemon.EVs.HP ,
+				newPokemon.EVs.attack ,
+				newPokemon.EVs.defense ,
+				newPokemon.EVs.sp_attack ,
+				newPokemon.EVs.sp_defense ,
+				newPokemon.EVs.speed
+			],
+			fill: true,
+			backgroundColor: 'rgba( 0 , 0 , 0 , 0.2 )',
+			borderColor: 'rgb( 0 , 0 , 0 )',
+			pointBackgroundColor: 'rgb( 0 , 0 , 0 )',
+			pointBorderColor: '#fff',
+			pointHoverBackgroundColor: '#fff',
+			pointHoverBorderColor: 'rgb( 0 , 0 , 0 )'
+		}]
+		};
+		const config_ev = {
+			type: 'radar',
+			data: ev_data,
+			options: {
+				//maintainAspectRatio: false,
+				layout: {
+					padding: {
+						left: 10
+					}
+				},
+				plugins: {
+					legend: {
+						display: false
+					}
+				}
+			}
+		};
+		div_ev.appendChild( canvas_ev );
+		var myChart_ev = new Chart(
+			canvas_ev ,
+			config_ev
+		);
 		//
-		var attack_li = document.createElement( "li" );
-		attack_li.innerHTML = "attack: " + newPokemon.IVs.attack;
-		ul_iv.appendChild( attack_li );
-		var defense_li = document.createElement( "li" );
-		defense_li.innerHTML = "defense: " + newPokemon.IVs.defense;
-		ul_iv.appendChild( defense_li );
-		var sp_attack_li = document.createElement( "li" );
-		sp_attack_li.innerHTML = "sp_attack: " + newPokemon.IVs.sp_attack;
-		ul_iv.appendChild( sp_attack_li );
-		var sp_defense_li = document.createElement( "li" );
-		sp_defense_li.innerHTML = "sp_defense: " + newPokemon.IVs.sp_defense;
-		ul_iv.appendChild( sp_defense_li );
-		var speed_li = document.createElement( "li" );
-		speed_li.innerHTML = "speed: " + newPokemon.IVs.speed;
-		ul_iv.appendChild( speed_li );
-		var hp_li = document.createElement( "li" );
-		hp_li.innerHTML = "hp: " + newPokemon.IVs.HP;
-		ul_iv.appendChild( hp_li );
-		div.appendChild( ul_iv );
+		const iv_data = {
+		labels: [
+			'HP',
+			'Attack',
+			'Defense',
+			'Sp. Atk',
+			'Sp. Def',
+			'Speed'
+		],
+		datasets: [{
+			data: [
+				newPokemon.IVs.HP ,
+				newPokemon.IVs.attack ,
+				newPokemon.IVs.defense ,
+				newPokemon.IVs.sp_attack ,
+				newPokemon.IVs.sp_defense ,
+				newPokemon.IVs.speed
+			],
+			fill: true,
+			backgroundColor: 'rgba( 0 , 0 , 0 , 0.2 )',
+			borderColor: 'rgb( 0 , 0 , 0 )',
+			pointBackgroundColor: 'rgb( 0 , 0 , 0 )',
+			pointBorderColor: '#fff',
+			pointHoverBackgroundColor: '#fff',
+			pointHoverBorderColor: 'rgb( 0 , 0 , 0 )'
+		}]
+		};
+		const config_iv = {
+			type: 'radar',
+			data: iv_data,
+			options: {
+				layout: {
+					padding: {
+						left: 10
+					}
+				},
+				plugins: {
+					legend: {
+						display: false
+					}
+				}
+			}
+		};
+		div_iv.appendChild( canvas_iv );
+		var myChart_iv = new Chart(
+			canvas_iv ,
+			config_iv
+		);
 	}
 
 	updateMisc( newPokemon ) {

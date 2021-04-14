@@ -121,14 +121,36 @@
 	margin-top: 55px; /* this is bad i think */
 }
 .tab-stats {
+	width: calc( 100% - 20px );
+	height: 180px;
 }
 .tab-eviv {
-	display:none;
+	display: none;
+}
+.tab-moves {
+	display: none;
 }
 .tab-misc {
-	display:none;
+	display: none;
 }
-.stats-radar-div {
-	width: 200px;
-	height: 200px;
+.tab-eviv-ev {
+	width: 40%;
+	float: left;
+	margin-left: 10px;
+}
+.tab-eviv-iv {
+	width: 40%;
+	float: right;
+	margin-right: 10px;
+}
+.tab-button {
+	width: 25%;
+	border: 1px solid #000000;
+	display: block;
+	background-color: transparent;
+	float: left;
+	outline: none;
+}
+.tab-button-selected {
+	background: #FFFFFF;
 }
