@@ -60,24 +60,27 @@ socket.on( "gameData" , ( data ) => {
 	if ( enemy_pokemon_cards.length >= 1 && data.catchRate != 0 && !( data.catchRate === undefined ) ) {
 		var catchrate_div = document.getElementById( "catchrate" );
 		catchrate_div.style.visibility = "visible";
-		var poke_rate = ( data.catchRate.pokeball / 255.0 )
+		var poke_rate = shake( data.catchRate.pokeball );
+		var poke_rate_raw = ( 100 * data.catchRate.pokeball / 255.0 ).toFixed(3);
 		var poke_percent = ( 100 * poke_rate ).toFixed( 3 );
 		var poke_ev = Math.round( 1.0 / poke_rate );
 		var poke_25 = Math.round( Math.log( 1 - 0.25 ) / Math.log( 1 - poke_rate ) );
 		var poke_75 = Math.round( Math.log( 1 - 0.75 ) / Math.log( 1 - poke_rate ) );
-		document.getElementById( "pokeball-catchrate" ).innerHTML = "<span title='Expected: " + poke_ev + " | 25%: " + poke_25 + " | 75%: " + poke_75 + "'>" + data.catchRate.pokeball + " (" + poke_percent + "%)</span>";
-		var great_rate = ( data.catchRate.greatball / 255.0 )
+		document.getElementById( "pokeball-catchrate" ).innerHTML = "<span title='Expected: " + poke_ev + " | 25%: " + poke_25 + " | 75%: " + poke_75 + " | Raw: " + poke_rate_raw + "%'>" + data.catchRate.pokeball + " (" + poke_percent + "%)</span>";
+		var great_rate = shake( data.catchRate.greatball );
 		var great_percent = ( 100 * great_rate ).toFixed( 3 );
+		var great_rate_raw = ( 100 * data.catchRate.greatball / 255.0 ).toFixed(3);
 		var great_ev = Math.round( 1.0 / great_rate );
 		var great_25 = Math.round( Math.log( 1 - 0.25 ) / Math.log( 1 - great_rate ) );
 		var great_75 = Math.round( Math.log( 1 - 0.75 ) / Math.log( 1 - great_rate ) );
-		document.getElementById( "greatball-catchrate" ).innerHTML = "<span title='Expected: " + great_ev + " | 25%: " + great_25 + " | 75%: " + great_75 + "'>" + data.catchRate.greatball + " (" + great_percent + "%)</span>";
-		var ultra_rate = ( data.catchRate.ultraball / 255.0 )
+		document.getElementById( "greatball-catchrate" ).innerHTML = "<span title='Expected: " + great_ev + " | 25%: " + great_25 + " | 75%: " + great_75 + " | Raw: " + great_rate_raw + "%'>" + data.catchRate.greatball + " (" + great_percent + "%)</span>";
+		var ultra_rate = shake( data.catchRate.ultraball );
+		var ultra_rate_raw = ( 100 * data.catchRate.ultraball / 255.0 ).toFixed(3);
 		var ultra_percent = ( 100 * ultra_rate ).toFixed( 3 );
 		var ultra_ev = Math.round( 1.0 / ultra_rate );
 		var ultra_25 = Math.round( Math.log( 1 - 0.25 ) / Math.log( 1 - ultra_rate ) );
 		var ultra_75 = Math.round( Math.log( 1 - 0.75 ) / Math.log( 1 - ultra_rate ) );
-		document.getElementById( "ultraball-catchrate" ).innerHTML = "<span title='Expected: " + ultra_ev + " | 25%: " + ultra_25 + " | 75%: " + ultra_75 + "'>" + data.catchRate.ultraball + " (" + ultra_percent + "%)</span>";
+		document.getElementById( "ultraball-catchrate" ).innerHTML = "<span title='Expected: " + ultra_ev + " | 25%: " + ultra_25 + " | 75%: " + ultra_75 + " | Raw: " + ultra_rate_raw + "%'>" + data.catchRate.ultraball + " (" + ultra_percent + "%)</span>";
 	} else {
 		document.getElementById("catchrate").style.visibility = "hidden";
 	}
@@ -97,4 +100,9 @@ function makeli( data ) {
 
 function formatTime( time ) {
 	return time.toLocaleTimeString();
+}
+
+function shake( a ) {
+    var b = Math.floor( 1048560 / Math.floor( Math.sqrt( Math.floor( Math.sqrt( Math.floor( 16711680 / a ) ) ) ) ) );
+    return Math.pow( b / 65535.0 , 4 ); 
 }
