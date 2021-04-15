@@ -1,4 +1,4 @@
-exports.catchrates = [ 45,
+exports.catchrates = [ 0 , 45,
 45,
 45,
 45,
