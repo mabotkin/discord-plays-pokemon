@@ -116,6 +116,8 @@ class PokeCard {
 		ans.push( p.stats.exp );
 		ans.push( p.stats.friendship );
 		ans.push( p.misc.met_location );
+		ans.push( p.info.ability );
+		ans.push( p.info.nature );
 		ans.push( p.personality_value );
 		return ans;
 	}
@@ -676,21 +678,40 @@ class PokeCard {
 	updateMisc( newPokemon ) {
 		var div = this.data_map[ "misc" ];
 		div.innerHTML = "";
-		var ul = document.createElement( "ul" );
+		var table = document.createElement( "table" );
+		table.setAttribute( "id" , this.makeIdUnique( "misc-table" ) );
+		table.setAttribute( "class" , "misc-table" );
 		//
-		var exp_li = document.createElement( "li" );
-		exp_li.innerHTML = "exp: " + newPokemon.stats.exp;
-		ul.appendChild( exp_li );
-		var friendship_li = document.createElement( "li" );
-		friendship_li.innerHTML = "friendship: " + newPokemon.stats.friendship;
-		ul.appendChild( friendship_li );
-		var met_location_li = document.createElement( "li" );
-		met_location_li.innerHTML = "met_location: " + newPokemon.misc.met_location_name;
-		ul.appendChild( met_location_li );
-		var personality_li = document.createElement( "li" );
-		personality_li.innerHTML = "personality: " + newPokemon.personality_value;
-		ul.appendChild( personality_li );
-		div.appendChild( ul );
+		var friendship = "Friendship:";
+		if ( newPokemon.misc.is_egg ) {
+			friendship = "Egg Cycles Remaining:";
+		}
+		var type = newPokemon.info.type[0];
+		if ( newPokemon.info.type.length == 2 ) {
+			type = newPokemon.info.type[0] + " / " + newPokemon.info.type[1];
+		}
+		table.appendChild( this.makeRow( "Type:" , type ) );
+		table.appendChild( this.makeRow( "Ability:" , newPokemon.info.ability ) );
+		table.appendChild( this.makeRow( "Nature:" , newPokemon.info.nature ) );
+		table.appendChild( this.makeRow( "Experience:" , newPokemon.stats.exp ) );
+		table.appendChild( this.makeRow( "Met Location:" , newPokemon.misc.met_location_name ) );
+		table.appendChild( this.makeRow( friendship , newPokemon.stats.friendship ) );
+		table.appendChild( this.makeRow( "Personality Value:" , newPokemon.personality_value ) );
+		//
+		div.appendChild( table );
+	}
+
+	makeRow( key , val ) {
+		var row = document.createElement( "tr" );
+		var k = document.createElement( "td" );
+		var v = document.createElement( "td" );
+		k.setAttribute( "class" , "table-col-left" );
+		v.setAttribute( "class" , "table-col-right" );
+		k.innerHTML = key;
+		v.innerHTML = val;
+		row.appendChild( k );
+		row.appendChild( v );
+		return row;
 	}
 }
 

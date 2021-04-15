@@ -160,3 +160,14 @@
 .tab-button-selected {
 	background-color: rgba( 0 , 0 , 0 , 0.3 ) !important;
 }
+.misc-table {
+	margin: auto;
+	padding-top: 10px;
+	font-size: small;
+}
+.table-col-left {
+	text-align: right;
+}
+.table-col-right {
+	text-align: left;
+}

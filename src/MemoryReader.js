@@ -69,6 +69,7 @@ class MemoryReader {
 		pokemon.stats = {};
 		pokemon.info = {};
 		pokemon.personality_value = this.loadU32( mem , address );
+		pokemon.info.nature = this.natureLookup( pokemon.personality_value % 25 );
 		pokemon.OT = {};
 		pokemon.OT.OTID = this.loadU32( mem , address + 4 );
 		var nickname = "";
@@ -201,9 +202,6 @@ class MemoryReader {
 				pokemon.IVs.sp_defense = ( iv_egg_ability & 0x3E000000 ) >>> 25;
 				pokemon.misc.is_egg = ( ( iv_egg_ability & 0x40000000 ) >>> 30 ) == 1;
 				pokemon.misc.ability_no = ( ( iv_egg_ability & 0x80000000 ) >>> 31 );
-				if ( abilities[ pokemon.info.pokedex_id ] !== undefined ) {
-					pokemon.misc.ability = abilities[ pokemon.info.pokedex_id ][ pokemon.misc.ability_no ];
-				}
 				//
 				var ribbons_obedience = third_four;
 				pokemon.ribbons = {};
@@ -231,6 +229,9 @@ class MemoryReader {
 			pokemon.moves[i].pp_bonus = pp_bonus_cache[i];
 		}
 		pokemon.misc.computed_checksum = computed_checksum % 2**16;
+		if ( abilities[ pokemon.info.pokedex_id ] !== undefined ) {
+			pokemon.info.ability = abilities[ pokemon.info.pokedex_id ][ pokemon.misc.ability_no ];
+		}
 	}
 
 	ribbonLookup( val ) {
@@ -299,6 +300,41 @@ class MemoryReader {
 		}
 		if ( val in langs ) {
 			return langs[ val ];
+		} else {
+			return "???";
+		}
+	}
+
+	natureLookup( val ) {
+		var natures = {
+			0 : "Hardy",
+			1 : "Lonely",
+			2 : "Brave",
+			3 : "Adamant",
+			4 : "Naughty",
+			5 : "Bold",
+			6 : "Docile",
+			7 : "Relaxed",
+			8 : "Impish",
+			9 : "Lax",
+			10 : "Timid",
+			11 : "Hasty",
+			12 : "Serious",
+			13 : "Jolly",
+			14 : "Naive",
+			15 : "Modest",
+			16 : "Mild",
+			17 : "Quiet",
+			18 : "Bashful",
+			19 : "Rash",
+			20 : "Calm",
+			21 : "Gentle",
+			22 : "Sassy",
+			23 : "Careful",
+			24 : "Quirky"
+		}
+		if ( val in natures ) {
+			return natures[ val ];
 		} else {
 			return "???";
 		}
