@@ -693,7 +693,7 @@ class PokeCard {
 		table.appendChild( this.makeRow( "Type:" , type ) );
 		table.appendChild( this.makeRow( "Ability:" , newPokemon.info.ability ) );
 		table.appendChild( this.makeRow( "Nature:" , newPokemon.info.nature ) );
-		table.appendChild( this.makeRow( "Experience:" , newPokemon.stats.exp ) );
+		table.appendChild( this.makeRow( "Experience:" , newPokemon.stats.exp + " (" + newPokemon.stats.exp_next + "/" + ( newPokemon.stats.exp_next + newPokemon.stats.exp_level ) + " to next level)" ) );
 		table.appendChild( this.makeRow( "Met Location:" , newPokemon.misc.met_location_name ) );
 		table.appendChild( this.makeRow( friendship , newPokemon.stats.friendship ) );
 		table.appendChild( this.makeRow( "Personality Value:" , newPokemon.personality_value ) );

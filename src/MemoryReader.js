@@ -5,6 +5,8 @@ var locations_index = require('./lookup/locations.js').locations_index;
 var pokemon_types = require('./lookup/pokemon_types.js').pokemon_types;
 var catchrates = require('./lookup/catchrate.js').catchrates;
 var abilities = require('./lookup/abilities.js').abilities;
+var exp_table = require('./lookup/exp.js').exp_table;
+var exp_type = require('./lookup/exptype.js').exptype;
 
 class MemoryConfig {
     // Stores relevant memory addresses for a particular game
@@ -107,6 +109,16 @@ class MemoryReader {
 		pokemon.stats.sp_attack = mem.loadU16( address + 96 );
 		pokemon.stats.sp_defense  = mem.loadU16( address + 98 );
 
+		if ( pokemon.info.species != 0 ) {
+			pokemon.stats.exp_type = exp_type[ pokemon.info.pokedex_id ];
+			if ( pokemon.stats.level == 100 ) {
+				pokemon.stats.exp_next = 0;
+			} else {
+				pokemon.stats.exp_next = exp_table[ pokemon.stats.exp_type ][ pokemon.stats.level + 1 ] - pokemon.stats.exp;
+			}
+			pokemon.stats.exp_level = pokemon.stats.exp - exp_table[ pokemon.stats.exp_type ][ pokemon.stats.level ];
+		}
+
 		return pokemon;
 	}
 
@@ -141,6 +153,7 @@ class MemoryReader {
 				pokemon.info.type = pokemon_types[ pokemon.info.pokedex_id ];
 				pokemon.stats.item = ( first_four & 0xffff0000 ) >>> 16;
 				pokemon.stats.exp = second_four;
+				//
 				var pp_bonuses = ( third_four & 0x000000ff );
 				pp_bonus_cache.push( pp_bonuses & 0x03 );
 				pp_bonus_cache.push( ( pp_bonuses & 0x0C ) >>> 2 );
