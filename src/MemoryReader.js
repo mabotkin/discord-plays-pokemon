@@ -109,7 +109,7 @@ class MemoryReader {
 		pokemon.stats.sp_attack = mem.loadU16( address + 96 );
 		pokemon.stats.sp_defense  = mem.loadU16( address + 98 );
 
-		if ( pokemon.info.species != 0 ) {
+		try {
 			pokemon.stats.exp_type = exp_type[ pokemon.info.pokedex_id ];
 			if ( pokemon.stats.level == 100 ) {
 				pokemon.stats.exp_next = 0;
@@ -117,7 +117,7 @@ class MemoryReader {
 				pokemon.stats.exp_next = exp_table[ pokemon.stats.exp_type ][ pokemon.stats.level + 1 ] - pokemon.stats.exp;
 			}
 			pokemon.stats.exp_level = pokemon.stats.exp - exp_table[ pokemon.stats.exp_type ][ pokemon.stats.level ];
-		}
+		} catch( err ) {}
 
 		return pokemon;
 	}
