@@ -4,6 +4,7 @@ var moves = require('./lookup/moves.js').moves;
 var locations_index = require('./lookup/locations.js').locations_index;
 var pokemon_types = require('./lookup/pokemon_types.js').pokemon_types;
 var catchrates = require('./lookup/catchrate.js').catchrates;
+var abilities = require('./lookup/abilities.js').abilities;
 
 class MemoryConfig {
     // Stores relevant memory addresses for a particular game
@@ -199,7 +200,10 @@ class MemoryReader {
 				pokemon.IVs.sp_attack = ( iv_egg_ability & 0x01F00000 ) >>> 20;
 				pokemon.IVs.sp_defense = ( iv_egg_ability & 0x3E000000 ) >>> 25;
 				pokemon.misc.is_egg = ( ( iv_egg_ability & 0x40000000 ) >>> 30 ) == 1;
-				pokemon.misc.ability = ( ( iv_egg_ability & 0x80000000 ) >>> 31 ) + 1;
+				pokemon.misc.ability_no = ( ( iv_egg_ability & 0x80000000 ) >>> 31 );
+				if ( abilities[ pokemon.info.pokedex_id ] !== undefined ) {
+					pokemon.misc.ability = abilities[ pokemon.info.pokedex_id ][ pokemon.misc.ability_no ];
+				}
 				//
 				var ribbons_obedience = third_four;
 				pokemon.ribbons = {};

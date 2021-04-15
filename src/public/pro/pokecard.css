@@ -134,23 +134,28 @@
 	display: none;
 }
 .tab-eviv-ev {
-	width: 40%;
+	width: 45%;
 	float: left;
-	margin-left: 10px;
+	margin-left: 20px;
 }
 .tab-eviv-iv {
-	width: 40%;
+	width: 45%;
 	float: right;
-	margin-right: 10px;
+	margin-right: 20px;
 }
 .tab-button {
 	width: 25%;
-	border: 1px solid #000000;
+	/*border: 1px solid #000000;*/
+	border: none;
 	display: block;
 	background-color: transparent;
 	float: left;
 	outline: none;
+	color: #FFFFFF;
+}
+.tab-button:hover {
+	background-color: rgba( 0 , 0 , 0 , 0.15 );
 }
 .tab-button-selected {
-	background: #FFFFFF;
+	background-color: rgba( 0 , 0 , 0 , 0.3 ) !important;
 }

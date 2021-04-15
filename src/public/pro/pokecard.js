@@ -551,12 +551,18 @@ class PokeCard {
 				//maintainAspectRatio: false,
 				layout: {
 					padding: {
-						left: 10
+						left: 10,
 					}
 				},
 				plugins: {
 					legend: {
 						display: false
+					},
+					title: {
+						display: true,
+						color: "#FFFFFF",
+						position: "right",
+						text: "EVs"
 					}
 				},
 				scales: {
@@ -564,8 +570,12 @@ class PokeCard {
 						//min: 0,
 						//max: 256,
 						ticks: {
-							showLabelBackdrop: false
+							showLabelBackdrop: false,
+							color: "#FFFFFF"
 						//	stepSize: 64
+						},
+						pointLabels : {
+							color: "#FFFFFF"
 						}
 					}
 				}
@@ -631,15 +641,25 @@ class PokeCard {
 				plugins: {
 					legend: {
 						display: false
+					},
+					title: {
+						display: true,
+						color: "#FFFFFF",
+						position: "left",
+						text: "IVs"
 					}
 				},
 				scales: {
 					r: {
 						min: 0,
 						max: 32,
+						pointLabels : {
+							color: "#FFFFFF"
+						},
 						ticks: {
 							showLabelBackdrop: false,
-							stepSize: 8
+							stepSize: 8,
+							color: "#FFFFFF"
 						}
 					}
 				}
