@@ -134,18 +134,19 @@
 	display: none;
 }
 .tab-eviv-ev {
-	width: 45%;
+	width: calc( 50% - 10px );
+	height: 185px;
 	float: left;
-	margin-left: 20px;
+	margin-left: 10px;
 }
 .tab-eviv-iv {
-	width: 45%;
+	width: calc( 50% - 10px );
+	height: 185px;
 	float: right;
-	margin-right: 20px;
+	margin-right: 10px;
 }
 .tab-button {
 	width: 25%;
-	/*border: 1px solid #000000;*/
 	border: none;
 	display: block;
 	background-color: transparent;

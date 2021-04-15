@@ -548,7 +548,7 @@ class PokeCard {
 			type: 'radar',
 			data: ev_data,
 			options: {
-				//maintainAspectRatio: false,
+				maintainAspectRatio: false,
 				layout: {
 					padding: {
 						left: 10,
@@ -633,6 +633,7 @@ class PokeCard {
 			type: 'radar',
 			data: iv_data,
 			options: {
+				maintainAspectRatio: false,
 				layout: {
 					padding: {
 						left: 10
