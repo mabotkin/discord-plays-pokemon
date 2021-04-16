@@ -1,4 +1,4 @@
-exports.exptype = [ "Medium Slow" ,
+exports.exptype = [ "" , "Medium Slow" ,
 "Medium Slow" ,
 "Medium Slow" ,
 "Medium Slow" ,
