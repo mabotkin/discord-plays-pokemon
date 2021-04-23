@@ -77,3 +77,7 @@ p {
 	display: flex;
 	align-items: center;
 }
+.emote-img {
+	height: 2em;
+	vertical-align: middle;
+}

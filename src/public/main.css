@@ -33,3 +33,7 @@ li.pokebullet {
 p { 
 	margin: 10px;
 }
+.emote-img {
+	height: 2em;
+	vertical-align: middle;
+}

@@ -102,7 +102,7 @@ exports.moves = [ {} , {"name": "Pound", "type": "Normal", "category": "Physical
 {"name": "Mimic", "type": "Normal", "category": "Status", "contest": "Cute", "pp": 10, "power": -1, "accuracy": -1, "gen": 1} ,
 {"name": "Screech", "type": "Normal", "category": "Status", "contest": "Clever", "pp": 40, "power": -1, "accuracy": -1, "gen": 1} ,
 {"name": "Double Team", "type": "Normal", "category": "Status", "contest": "Cool", "pp": 15, "power": -1, "accuracy": -1, "gen": 1} ,
-{"name": "Recover", "type": "Normal", "category": "Status", "contest": "Clever", "pp": 10, "power": -1, "accuracy": -1, "gen": 1} ,
+{"name": "Recover", "type": "Normal", "category": "Status", "contest": "Clever", "pp": 20, "power": -1, "accuracy": -1, "gen": 1} ,
 {"name": "Harden", "type": "Normal", "category": "Status", "contest": "Tough", "pp": 30, "power": -1, "accuracy": -1, "gen": 1} ,
 {"name": "Minimize", "type": "Normal", "category": "Status", "contest": "Cute", "pp": 10, "power": -1, "accuracy": -1, "gen": 1} ,
 {"name": "Smokescreen", "type": "Normal", "category": "Status", "contest": "Clever", "pp": 20, "power": -1, "accuracy": -1, "gen": 1} ,

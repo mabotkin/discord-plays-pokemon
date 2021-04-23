@@ -21,6 +21,14 @@ socket.on( "input" , ( data ) => {
 	}
 	ul.scrollTop = ul.scrollHeight;
 });
+socket.on( "emote" , ( data ) => {
+	ul = document.getElementById( "inputs" );
+	ul.appendChild( makeli_emote( data ) );
+	if ( ul.childNodes.length > 100 ) {
+		ul.removeChild( ul.children[0] );
+	}
+	ul.scrollTop = ul.scrollHeight;
+});
 socket.on( "viewers" , ( data ) => {
 	var viewers = parseInt( data );
 	document.getElementById( "viewers" ).innerHTML = "Viewers: " + viewers;
@@ -38,6 +46,22 @@ function makeli( data ) {
 		var message = data["author"] + ": " + data["input"];
 	}
 	li.appendChild( document.createTextNode( "(" + formatTime( now ) + ") " + message ) );
+	li.setAttribute('class', 'pokebullet');
+	return li;
+}
+function makeli_emote( data ) {
+	var li = document.createElement("li");
+	var img = document.createElement("img");
+	img.src = "/assets/emotes/" + data["emote"];
+	img.setAttribute('class', 'emote-img');
+	img.setAttribute('title', data["name"]);
+	var now = new Date();
+	var message = "Emote: ";
+	if ( data["author"] != "" ) {
+		var message = data["author"] + ": ";
+	}
+	li.appendChild( document.createTextNode( "(" + formatTime( now ) + ") " + message ) );
+	li.appendChild( img );
 	li.setAttribute('class', 'pokebullet');
 	return li;
 }

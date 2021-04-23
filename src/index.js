@@ -9,6 +9,7 @@ var io = require('socket.io').listen(http, {
   pingInterval: 2000
 });;
 var fs = require('fs');
+var glob = require('glob');
 var Discord = require('discord.js');
 var GameBoyAdvance = require('gbajs');
 
@@ -18,11 +19,13 @@ var { getActions } = require('@src/MessageParser.js');
 var { MemoryConfig, MemoryReader } = require("@src/MemoryReader.js");
 
 require("dotenv").config();
+var ALLOW_EMOTES = ( process.env.ALLOW_EMOTES == "1" );
 var ANONYMOUS_MODE = ( process.env.ANONYMOUS_MODE == "1" );
 var DISCORD_ADMIN_IDS = process.env.DISCORD_ADMIN_IDS;
 var DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 var DISCORD_GUILD_ID = parseInt( process.env.DISCORD_GUILD_ID );
 var DISCORD_CHANNEL_ID = parseInt( process.env.DISCORD_CHANNEL_ID );
+var EMOTE_PREFIX = process.env.EMOTE_PREFIX;
 var FRAMERATE = Math.min(Math.max( parseInt( process.env.FRAMERATE ), 1 ), 60 );
 var MAX_REPEAT = parseInt( process.env.MAX_REPEAT );
 var MAX_ACTIONS_QUEUED = parseInt( process.env.MAX_ACTIONS_QUEUED );
@@ -164,6 +167,18 @@ var legal_buttons = {
 	"RT" : keypad.R,
 	"LT" : keypad.L
 };
+
+var emotes = {};
+if ( ALLOW_EMOTES ) {
+	const emoteFolder = "src/public/assets/emotes/";
+	glob( emoteFolder + "*" , function( err , files ) {
+		for ( var i = 0 ; i < files.length ; i++ ) {
+			var filename = files[i].split("/").slice(-1)[0];
+			var emotename = filename.split(".")[0];
+			emotes[ emotename ] = filename;
+		}
+	});
+}
 
 client.on('message', message => {
 	if ( message.guild == DISCORD_GUILD_ID && message.channel == DISCORD_CHANNEL_ID )
@@ -338,6 +353,35 @@ client.on('message', message => {
 
                 message.channel.send( embed );
             }
+
+			if ( m.startsWith( "--EMOTES" ) ) {
+                var embed = new Discord.MessageEmbed()
+                    .setColor('#ee1515')
+                    .setTitle('Emotes')
+					.setDescription('Emote Prefix: `' + EMOTE_PREFIX + '`\nNote that emotes are case sensitive.')
+                    .addFields(
+                        { name: 'Available Emotes:', value: Object.keys( emotes ).join( "\n" ) , inline: true }
+                    )
+                    .setTimestamp()
+
+                message.channel.send( embed );
+			}
+
+		} else if ( message.content.trim().startsWith(EMOTE_PREFIX) ) {
+			if ( ALLOW_EMOTES ) {
+				var emote = message.content.trim().substring(EMOTE_PREFIX.length).trim();
+				if ( emote in emotes ) {
+					var displayEmote = { "author" : message.author.username , "name" : emote , "emote" : emotes[ emote ] }
+					if ( ANONYMOUS_MODE ) {
+						displayEmote = { "author" : "" , "name" : emote , "emote" : emotes[ emote ] }
+					}
+					io.emit( "emote" , displayEmote )
+				} else {
+					message.channel.send("Emote not found.");
+				}
+			} else {
+				message.channel.send("Emotes not allowed.");
+			}
         } else {
             var {messages, actions} = getActions( m , legal_buttons );
             actionQueue.addActions( actions, messages, message.author.username );

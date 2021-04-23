@@ -19,11 +19,13 @@ and view the web interface at the specified port.
 You will first need to create a Discord bot on the [Discord Developer portal](discord.com/developers), and give it permissions to read text channels.  Then, invite the created bot to your server, and record the token.
 
 - `ACTION_INTERVAL` Number of milliseconds between queued actions.
+- `ALLOW_EMOTES` Whether or not to allow emotes to send.
 - `ANONYMOUS_MODE` When set to `1`, web interface will not display Discord usernames in the input log.
 - `DISCORD_ADMIN_IDS` Provide a string containing the user IDs of all users you would like to have admin access.
 - `DISCORD_CHANNEL_ID` Provide the channel ID of the Discord text channel where inputs will be read from.
 - `DISCORD_GUILD_ID` Provide the server ID on which the bot will listen.
 - `DISCORD_TOKEN` Provide the bot token from above.
+- `EMOTE_PREFIX` Character(s) to precede emote commands.
 - `FRAMERATE` The number of frames that the server sends to each client per second.  Does not control the emulator built-in framerate.  Setting this above 15 may cause issues.
 - `MAX_ACTIONS_QUEUED` Maximum number of actions that can be queued to be sent to the emulator.
 - `MAX_REPEAT` Maximum number of actions that can be simultaneously in the queue from one sender.
@@ -47,6 +49,8 @@ Enter any of the valid keypresses to submit that keypress to the emulator.  Vali
 
 Furthermore, repeated button presses are supported.  For example, the command `A2` will send `A` two times to the emulator.  More complex commands can be built using parentheses, such as `(LR)10` to walk repeatedly to the left and right.
 
+Emotes are also supported, and should be placed (in any image format) in `src/public/assets/emotes`.
+
 ## Deep Integration
 
 The file `MemoryReader.js` accesses the emulators RAM to parse out game data in a human-readable format.  This data can be viewed using the commands `--PARTY`, `--PARTY #`, or on the web interface at `/pro`.
@@ -60,6 +64,7 @@ The following are features that we hope to add in the future:
 - [x] Deep integration to pull game data from RAM.
 - [x] Display deep integration party data on front-end in real time.
 - [x] Make repeated button presses easier (i.e., `A*10`).
+- [x] Add emotes.
 - [ ] Make front-end pretty.
 - [ ] Autosave functionality.
 - [ ] Democracy mode.
