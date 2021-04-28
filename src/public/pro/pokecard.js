@@ -274,7 +274,7 @@ class PokeCard {
 		this.createTemplate();
 		this.setAlive( false );
 		for ( var i = 0 ; i < 4 ; i++ ) {
-			this.moves.push( new PokeMoveCard( this.uuid + "-move" ) );
+			this.moves.push( new PokeMoveCard( this.uuid + "-move-" + i ) );
 			this.data_map[ "move-wrapper" ].appendChild( this.moves[i].initialRender() );
 		}
 		return this.root;
@@ -283,14 +283,8 @@ class PokeCard {
 	setAlive( alive ) {
 		if ( alive ) {
 			this.root.style.visibility = "visible";
-			for ( var i = 0 ; i < this.moves.length ; i++ ) {
-				this.moves[i].setAlive( true );
-			}
 		} else {
 			this.root.style.visibility = "hidden";
-			for ( var i = 0 ; i < this.moves.length ; i++ ) {
-				this.moves[i].setAlive( false );
-			}
 		}
 	}
 
@@ -310,6 +304,7 @@ class PokeCard {
 	update( newPokemon ) {
 		if ( newPokemon === undefined ) {
 			this.setAlive( false );
+			this.pokemon = newPokemon;
 			return;
 		}
 		this.setAlive( true );
@@ -726,7 +721,7 @@ class PokeMoveCard {
 
 		this.update_protocols = {
 			"name" : [ (m) => [ m.movedata.name ] , (x) => this.updateName(x) ],
-			"pp" : [ (m) => [ m.movedata.pp ] , (x) => this.updatePP(x) ],
+			"pp" : [ (m) => [ m.pp ] , (x) => this.updatePP(x) ],
 			"color" : [ (m) => [ m.movedata.type ] , (x) => this.updateColor(x) ]
 		};
 	}
@@ -772,14 +767,15 @@ class PokeMoveCard {
 	update( newMove ) {
 		if ( newMove.id == 0 ) {
 			this.setAlive( false );
+			this.move = newMove;
 			return;
 		}
 		this.setAlive( true );
 		//
-		var shortCircuit = ( this.move === undefined );
+		var shortCircuit = ( ( this.move === undefined ) || ( this.move.id == 0 ) );
 		for ( var protocol in this.update_protocols ) {
 			var protocol_data = this.update_protocols[ protocol ];
-			if ( shortCircuit || ( protocol_data[0]( this.move ) != protocol_data[0]( newMove ) ) ) {
+			if ( shortCircuit || ( JSON.stringify( protocol_data[0]( this.move ) ) != JSON.stringify( protocol_data[0]( newMove ) ) ) ) {
 				protocol_data[1]( newMove );
 			}
 		}
