@@ -245,7 +245,7 @@ exports.moves = [ {} , {"name": "Pound", "type": "Normal", "category": "Physical
 {"name": "Extreme Speed", "type": "Normal", "category": "Physical", "contest": "Cool", "pp": 5, "power": 80, "accuracy": 80, "gen": 2} ,
 {"name": "Ancient Power", "type": "Rock", "category": "Special", "contest": "Tough", "pp": 5, "power": 60, "accuracy": 60, "gen": 2} ,
 {"name": "Shadow Ball", "type": "Ghost", "category": "Special", "contest": "Clever", "pp": 15, "power": 80, "accuracy": 80, "gen": 2} ,
-{"name": "Future Sight", "type": "Psychic", "category": "Special", "contest": "Clever", "pp": 10, "power": 120, "accuracy": 120, "gen": 2} ,
+{"name": "Future Sight", "type": "Psychic", "category": "Special", "contest": "Clever", "pp": 15, "power": 120, "accuracy": 120, "gen": 2} ,
 {"name": "Rock Smash", "type": "Fighting", "category": "Physical", "contest": "Tough", "pp": 15, "power": 40, "accuracy": 40, "gen": 2} ,
 {"name": "Whirlpool", "type": "Water", "category": "Special", "contest": "Beautiful", "pp": 15, "power": 35, "accuracy": 35, "gen": 2} ,
 {"name": "Beat Up", "type": "Dark", "category": "Physical", "contest": "Clever", "pp": 10, "power": -1, "accuracy": -1, "gen": 2} ,
