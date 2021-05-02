@@ -7,6 +7,11 @@ var catchrates = require('./lookup/catchrate.js').catchrates;
 var abilities = require('./lookup/abilities.js').abilities;
 var exp_table = require('./lookup/exp.js').exp_table;
 var exp_type = require('./lookup/exptype.js').exptype;
+var moves_effects = require('./lookup/moves_effects.js').moves_effects;
+// merge moves_effects into moves
+for ( var i = 0 ; i < moves.length ; i++ ) {
+	moves[ i ][ "effect" ] = moves_effects[ i ];
+}
 
 class MemoryConfig {
     // Stores relevant memory addresses for a particular game
