@@ -932,6 +932,7 @@ class PokeMoveCardDetail {
 
 		var type_img = this.data_map[ "move-type" ];
 		type_img.src = '../assets/type/' + (type + "").toLowerCase() + '.svg';
+		type_img.title = type;
 
 		var color_div = this.data_map[ "color" ];
 		color_div.style.backgroundColor = colorLookup( type );
