@@ -50,6 +50,7 @@ class PokeCard {
 		this.uuid = uuid;
 		this.mirrorSuffix = ( mirror ? "-mirror" : "" );
 		this.moves = [];
+		this.movesdetail = [];
 
 		this.update_protocols = {
 			"sprite" : [ (p) => [ p.info.pokedex_id ] , (x) => this.updateSprite(x) ] ,
@@ -60,7 +61,8 @@ class PokeCard {
 			"status" : [ (p) => [ p.stats.status ] , (x) => this.updateStatus(x) ] ,
 			"stats" : [ (p) => [ this.statsHash( p ) ] , (x) => this.updateStats(x) ] ,
 			"eviv" : [ (p) => [ p.EVs , p.IVs ] , (x) => this.updateEVIV(x) ] ,
-			"misc" : [ (p) => [ this.miscHash( p ) ] , (x) => this.updateMisc(x) ] 
+			"misc" : [ (p) => [ this.miscHash( p ) ] , (x) => this.updateMisc(x) ] ,
+			"movedetail" : [ (p) => [ this.moveHash( p.moves ) ] , (x) => this.updateMovesDetail(x) ]
 		};
 	}
 
@@ -256,6 +258,7 @@ class PokeCard {
 		tab_moves.setAttribute( "id" , this.makeIdUnique( "tab-moves" ) );
 		tab_moves.setAttribute( "class" , "tab-moves" );
 		this.data_map[ "moves" ] = tab_moves;
+		//
 		var tab_misc = document.createElement( "div" );
 		tab_misc.setAttribute( "id" , this.makeIdUnique( "tab-misc" ) );
 		tab_misc.setAttribute( "class" , "tab-misc" );
@@ -276,6 +279,8 @@ class PokeCard {
 		for ( var i = 0 ; i < 4 ; i++ ) {
 			this.moves.push( new PokeMoveCard( this.uuid + "-move-" + i ) );
 			this.data_map[ "move-wrapper" ].appendChild( this.moves[i].initialRender() );
+			this.movesdetail.push( new PokeMoveCardDetail( this.uuid + "-movedetail-" + i ) );
+			this.data_map[ "moves" ].appendChild( this.movesdetail[i].initialRender() );
 		}
 		return this.root;
 	}
@@ -374,6 +379,12 @@ class PokeCard {
 	updateMoves( newPokemon ) {
 		for ( var i = 0 ; i < this.moves.length ; i++ ) {
 			this.moves[i].update( newPokemon.moves[i] );
+		}
+	}
+
+	updateMovesDetail ( newPokemon ) {
+		for ( var i = 0 ; i < this.movesdetail.length ; i++ ) {
+			this.movesdetail[i].update( newPokemon.moves[i] );
 		}
 	}
 
@@ -798,5 +809,149 @@ class PokeMoveCard {
 		var color_div = this.data_map[ "color" ];
 		var type = newMove.movedata.type;
 		color_div.style.backgroundColor = colorLookup( type );
+	}
+}
+
+class PokeMoveCardDetail {
+	constructor( uuid="-no-uuid" ) {
+		this.move = undefined;
+		this.root = null;
+		this.data_map = {};
+		this.uuid = uuid;
+
+		this.update_protocols = {
+			"name" : [ (m) => [ m.movedata.name ] , (x) => this.updateName(x) ],
+			"pp" : [ (m) => [ m.pp ] , (x) => this.updatePP(x) ],
+			"type" : [ (m) => [ m.movedata.type ] , (x) => this.updateType(x) ],
+			"power" : [ (m) => [ m.movedata.power ] , (x) => this.updatePower(x) ],
+			"accuracy" : [ (m) => [ m.movedata.accuracy ] , (x) => this.updateAccuracy(x) ],
+			"effect" : [ (m) => [ m.movedata.effect ] , (x) => this.updateEffect(x) ]
+		};
+	}
+
+	makeIdUnique( id ) {
+		return id + "-" + this.uuid;
+	}
+
+	createTemplate() {
+		var root = document.createElement( "div" );
+		this.root = root;
+		root.setAttribute( "id" , this.makeIdUnique( "move-detail-div" ) );
+		root.setAttribute( "class" , "move-detail-div" );
+		this.data_map[ "color" ] = root;
+		//
+		var move_type = document.createElement( "img" );
+		move_type.setAttribute( "id" , this.makeIdUnique( "move-type" ) );
+		move_type.setAttribute( "class" , "move-type" );
+		root.appendChild( move_type );
+		this.data_map[ "move-type" ] = move_type;
+		//
+		var move_name_div = document.createElement( "div" );
+		move_name_div.setAttribute( "id" , this.makeIdUnique( "move-detail-name-div" ) );
+		move_name_div.setAttribute( "class" , "move-detail-name-div" );
+		root.appendChild( move_name_div );
+		this.data_map[ "move-detail-name-div" ] = move_name_div;
+		//
+		var move_pp_div = document.createElement( "div" );
+		move_pp_div.setAttribute( "id" , this.makeIdUnique( "move-detail-pp-div" ) );
+		move_pp_div.setAttribute( "class" , "move-detail-pp-div" );
+		root.appendChild( move_pp_div );
+		this.data_map[ "move-detail-pp-div" ] = move_pp_div;
+		//
+		var move_pwr_acc_div = document.createElement( "div" );
+		move_pwr_acc_div.setAttribute( "id" , this.makeIdUnique( "move-pwr-acc-div" ) );
+		move_pwr_acc_div.setAttribute( "class", "move-pwr-acc-div" );
+		root.appendChild( move_pwr_acc_div );
+		this.data_map[ "move-pwr-acc-div" ] = move_pwr_acc_div;
+		//
+		var move_pwr = document.createElement( "div" );
+		move_pwr.setAttribute( "id" , this.makeIdUnique( "move-pwr" ) );
+		move_pwr.setAttribute( "class", "move-detail-element" );
+		move_pwr_acc_div.appendChild( move_pwr );
+		this.data_map[ "move-pwr" ] = move_pwr;
+		//
+		var move_acc = document.createElement( "div" );
+		move_acc.setAttribute( "id" , this.makeIdUnique( "move-acc" ) );
+		move_acc.setAttribute( "class", "move-detail-element" );
+		move_pwr_acc_div.appendChild( move_acc );
+		this.data_map[ "move-acc" ] = move_acc;
+		//
+		var effect_div = document.createElement( "div" );
+		effect_div.setAttribute( "id", this.makeIdUnique( "effect-div" ) );
+		effect_div.setAttribute( "class", "effect-div" );
+		root.appendChild( effect_div );
+		this.data_map[ "effect-div" ] = effect_div;
+	}
+
+	initialRender() {
+		this.createTemplate();
+		this.setAlive( false );
+		return this.root;
+	}
+
+	setAlive( alive ) {
+		if ( alive ) {
+			this.root.style.visibility = "inherit";
+		} else {
+			this.root.style.visibility = "hidden";
+		}
+	}
+
+	update( newMove ) {
+		if ( newMove.id == 0 ) {
+			this.setAlive( false );
+			this.move = newMove;
+			return;
+		}
+		this.setAlive( true );
+		//
+		var shortCircuit = ( ( this.move === undefined ) || ( this.move.id == 0 ) );
+		for ( var protocol in this.update_protocols ) {
+			var protocol_data = this.update_protocols[ protocol ];
+			if ( shortCircuit || ( JSON.stringify( protocol_data[0]( this.move ) ) != JSON.stringify( protocol_data[0]( newMove ) ) ) ) {
+				protocol_data[1]( newMove );
+			}
+		}
+		this.move = newMove;
+	}
+
+	updateName( newMove ) {
+		var name_div = this.data_map[ "move-detail-name-div" ];
+		name_div.innerHTML = newMove.movedata.name;
+	}
+
+	updatePP( newMove ) {
+		var pp_div = this.data_map[ "move-detail-pp-div" ];
+		var cur_pp = newMove.pp;
+		var max_pp = Math.floor( newMove.movedata.pp * (1 + 0.2*newMove.pp_bonus) );
+		pp_div.innerHTML = cur_pp + "/" + max_pp + " PP"
+	}
+
+	updateType( newMove ) {
+		var type = newMove.movedata.type;
+
+		var type_img = this.data_map[ "move-type" ];
+		type_img.src = '../assets/type/' + (type + "") + '.svg';
+
+		var color_div = this.data_map[ "color" ];
+		color_div.style.backgroundColor = colorLookup( type );
+	}
+
+	updatePower( newMove ) {
+		var power = newMove.movedata.power;
+		var move_pwr = this.data_map[ "move-pwr" ];
+		move_pwr.innerHTML = "PWR: " + power;
+	}
+
+	updateAccuracy( newMove ) {
+		var accuracy = newMove.movedata.accuracy;
+		var move_acc = this.data_map[ "move-acc" ];
+		move_acc.innerHTML = "ACC: " + accuracy;
+	}
+
+	updateEffect( newMove ) {
+		var effect = newMove.movedata.effect;
+		var effect_div = this.data_map[ "effect-div" ];
+		effect_div.innerHTML = effect;
 	}
 }
