@@ -931,7 +931,7 @@ class PokeMoveCardDetail {
 		var type = newMove.movedata.type;
 
 		var type_img = this.data_map[ "move-type" ];
-		type_img.src = '../assets/type/' + (type + "") + '.svg';
+		type_img.src = '../assets/type/' + (type + "").toLowerCase() + '.svg';
 
 		var color_div = this.data_map[ "color" ];
 		color_div.style.backgroundColor = colorLookup( type );
@@ -939,12 +939,20 @@ class PokeMoveCardDetail {
 
 	updatePower( newMove ) {
 		var power = newMove.movedata.power;
+		if ( power == -1 ) {
+			power = "&mdash;";
+		}
 		var move_pwr = this.data_map[ "move-pwr" ];
 		move_pwr.innerHTML = "PWR: " + power;
 	}
 
 	updateAccuracy( newMove ) {
 		var accuracy = newMove.movedata.accuracy;
+		if ( accuracy == -1 ) {
+			accuracy = "&mdash;";
+		} else {
+			accuracy += "%";
+		}
 		var move_acc = this.data_map[ "move-acc" ];
 		move_acc.innerHTML = "ACC: " + accuracy;
 	}
