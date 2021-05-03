@@ -156,6 +156,7 @@
 	position: absolute;
 	text-align: left;
 	padding: 2px;
+	font-size: small;
 }
 .status-div {
 	border: 1px solid #000000;
@@ -213,6 +214,14 @@
 .tab-button-selected {
 	background-color: rgba( 0 , 0 , 0 , 0.3 ) !important;
 }
+.misc-left-div {
+	float: left;
+	margin-left: 10px;
+}
+.misc-right-div {
+	float: right;
+	margin-right: 10px;
+}
 .misc-table {
 	margin: auto;
 	padding-top: 5px;
@@ -223,4 +232,14 @@
 }
 .table-col-right {
 	text-align: left;
+}
+.ability-effect-div {
+	overflow-y: scroll;
+	background-color: #404040;
+	width: 150px;
+	height: 51px;
+	text-align: left;
+	padding: 2px;
+	margin: 0px;
+	font-size: small;
 }

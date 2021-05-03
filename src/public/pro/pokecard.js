@@ -384,7 +384,7 @@ class PokeCard {
 
 	updateMovesDetail ( newPokemon ) {
 		for ( var i = 0 ; i < this.movesdetail.length ; i++ ) {
-			this.movesdetail[i].update( newPokemon.moves[i] );
+			this.movesdetail[i].update( newPokemon.moves[i] , newPokemon );
 		}
 	}
 
@@ -685,9 +685,19 @@ class PokeCard {
 	updateMisc( newPokemon ) {
 		var div = this.data_map[ "misc" ];
 		div.innerHTML = "";
-		var table = document.createElement( "table" );
-		table.setAttribute( "id" , this.makeIdUnique( "misc-table" ) );
-		table.setAttribute( "class" , "misc-table" );
+		var left_div = document.createElement( "div" );
+		left_div.setAttribute( "id" , this.makeIdUnique( "misc-left-div" ) );
+		left_div.setAttribute( "class" , "misc-left-div" );
+		var right_div = document.createElement( "div" );
+		right_div.setAttribute( "id" , this.makeIdUnique( "misc-right-div" ) );
+		right_div.setAttribute( "class" , "misc-right-div" );
+		//
+		var left_table = document.createElement( "table" );
+		left_table.setAttribute( "id" , this.makeIdUnique( "misc-left_table" ) );
+		left_table.setAttribute( "class" , "misc-table" );
+		var right_table = document.createElement( "table" );
+		right_table.setAttribute( "id" , this.makeIdUnique( "misc-right_table" ) );
+		right_table.setAttribute( "class" , "misc-table" );
 		//
 		var friendship = "Friendship:";
 		if ( newPokemon.misc.is_egg ) {
@@ -697,19 +707,24 @@ class PokeCard {
 		if ( newPokemon.info.type.length == 2 ) {
 			type = newPokemon.info.type[0] + " / " + newPokemon.info.type[1];
 		}
-		table.appendChild( this.makeRow( "Type:" , type ) );
-		table.appendChild( this.makeRow( "Ability:" , newPokemon.info.ability ) );
-		table.appendChild( this.makeRow( "Nature:" , newPokemon.info.nature ) );
-		table.appendChild( this.makeRow( "Exp Bar:" , 
+		left_table.appendChild( this.makeRow( "Type:" , type ) );
+		left_table.appendChild( this.makeRow( "Nature:" , newPokemon.info.nature ) );
+		left_table.appendChild( this.makeRow( "Met Location:" , newPokemon.misc.met_location_name ) );
+		left_table.appendChild( this.makeRow( friendship , newPokemon.stats.friendship ) );
+		left_table.appendChild( this.makeRow( "Personality Value:" , newPokemon.personality_value ) );
+		//
+		right_table.appendChild( this.makeRow( "Exp Bar:" , 
 			"<progress id='" + this.makeIdUnique( "exp-bar" ) + "' value='" + newPokemon.stats.exp_level + "' max='" + ( newPokemon.stats.exp_next + newPokemon.stats.exp_level ) + "'></progress>"
 		) );
-		table.appendChild( this.makeRow( "Total Exp:" , newPokemon.stats.exp + " (" +  newPokemon.stats.exp_level + "/" + ( newPokemon.stats.exp_next + newPokemon.stats.exp_level )+ ")" ) );
-		table.appendChild( this.makeRow( "Exp Type:" , newPokemon.stats.exp_type ) );
-		table.appendChild( this.makeRow( "Met Location:" , newPokemon.misc.met_location_name ) );
-		table.appendChild( this.makeRow( friendship , newPokemon.stats.friendship ) );
-		table.appendChild( this.makeRow( "Personality Value:" , newPokemon.personality_value ) );
+		right_table.appendChild( this.makeRow( "Total Exp:" , newPokemon.stats.exp + " (" +  newPokemon.stats.exp_level + "/" + ( newPokemon.stats.exp_next + newPokemon.stats.exp_level )+ ")" ) );
+		right_table.appendChild( this.makeRow( "Exp Type:" , newPokemon.stats.exp_type ) );
+		right_table.appendChild( this.makeRow( "Ability:" , newPokemon.info.ability ) );
+		right_table.appendChild( this.makeRow( "Ability Effect:" , "<div id='" + this.makeIdUnique( "ability-effect" ) + "' class='ability-effect-div'>" + newPokemon.info.ability_effect + "</div>" ) );
 		//
-		div.appendChild( table );
+		left_div.appendChild( left_table );
+		right_div.appendChild( right_table );
+		div.appendChild( left_div );
+		div.appendChild( right_div );
 	}
 
 	makeRow( key , val ) {
@@ -828,7 +843,8 @@ class PokeMoveCardDetail {
 			"type" : [ (m) => [ m.movedata.type ] , (x) => this.updateType(x) ],
 			"power" : [ (m) => [ m.movedata.power ] , (x) => this.updatePower(x) ],
 			"accuracy" : [ (m) => [ m.movedata.accuracy ] , (x) => this.updateAccuracy(x) ],
-			"effect" : [ (m) => [ m.movedata.effect ] , (x) => this.updateEffect(x) ]
+			"effect" : [ (m) => [ m.movedata.effect ] , (x) => this.updateEffect(x) ],
+			"stab" : [ (m) => [ m.movedata.type , this.type ] , (x) => this.updateStab(x) ]
 		};
 	}
 
@@ -879,6 +895,12 @@ class PokeMoveCardDetail {
 		move_pwr_acc_div.appendChild( move_acc );
 		this.data_map[ "move-acc" ] = move_acc;
 		//
+		var move_stab = document.createElement( "div" );
+		move_stab.setAttribute( "id" , this.makeIdUnique( "move-stab" ) );
+		move_stab.setAttribute( "class", "move-detail-element" );
+		move_pwr_acc_div.appendChild( move_stab );
+		this.data_map[ "move-stab" ] = move_stab;
+		//
 		var effect_div = document.createElement( "div" );
 		effect_div.setAttribute( "id", this.makeIdUnique( "effect-div" ) );
 		effect_div.setAttribute( "class", "effect-div" );
@@ -900,13 +922,14 @@ class PokeMoveCardDetail {
 		}
 	}
 
-	update( newMove ) {
+	update( newMove , newPokemon ) {
 		if ( newMove.id == 0 ) {
 			this.setAlive( false );
 			this.move = newMove;
 			return;
 		}
 		this.setAlive( true );
+		this.type = newPokemon.info.type;
 		//
 		var shortCircuit = ( ( this.move === undefined ) || ( this.move.id == 0 ) );
 		for ( var protocol in this.update_protocols ) {
@@ -959,6 +982,16 @@ class PokeMoveCardDetail {
 		}
 		var move_acc = this.data_map[ "move-acc" ];
 		move_acc.innerHTML = "ACC: " + accuracy;
+	}
+
+	updateStab( newMove ) {
+		var type = newMove.movedata.type;
+		var move_stab = this.data_map[ "move-stab" ];
+		if ( this.type.includes( type ) ) {
+			move_stab.innerHTML = "STAB";
+		} else {
+			move_stab.innerHTML = "";
+		}
 	}
 
 	updateEffect( newMove ) {
