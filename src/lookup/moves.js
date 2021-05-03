@@ -34,7 +34,7 @@ exports.moves = [ {} , {"name": "Pound", "type": "Normal", "category": "Physical
 {"name": "Body Slam", "type": "Normal", "category": "Physical", "contest": "Tough", "pp": 15, "power": 85, "accuracy": 100, "gen": 1} ,
 {"name": "Wrap", "type": "Normal", "category": "Physical", "contest": "Tough", "pp": 20, "power": 15, "accuracy": 90, "gen": 1} ,
 {"name": "Take Down", "type": "Normal", "category": "Physical", "contest": "Tough", "pp": 20, "power": 90, "accuracy": 85, "gen": 1} ,
-{"name": "Thrash", "type": "Normal", "category": "Physical", "contest": "Tough", "pp": 10, "power": 120, "accuracy": 100, "gen": 1} ,
+{"name": "Thrash", "type": "Normal", "category": "Physical", "contest": "Tough", "pp": 20, "power": 120, "accuracy": 100, "gen": 1} ,
 {"name": "Double-Edge", "type": "Normal", "category": "Physical", "contest": "Tough", "pp": 15, "power": 120, "accuracy": 100, "gen": 1} ,
 {"name": "Tail Whip", "type": "Normal", "category": "Status", "contest": "Cute", "pp": 30, "power": -1, "accuracy": 100, "gen": 1} ,
 {"name": "Poison Sting", "type": "Poison", "category": "Physical", "contest": "Clever", "pp": 35, "power": 15, "accuracy": 100, "gen": 1} ,

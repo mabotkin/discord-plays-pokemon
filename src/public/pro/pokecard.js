@@ -714,7 +714,7 @@ class PokeCard {
 		left_table.appendChild( this.makeRow( "Nature:" , newPokemon.info.nature ) );
 		left_table.appendChild( this.makeRow( "Met Location:" , newPokemon.misc.met_location_name ) );
 		left_table.appendChild( this.makeRow( friendship , newPokemon.stats.friendship ) );
-		left_table.appendChild( this.makeRow( "Personality Value:" , newPokemon.personality_value ) );
+		left_table.appendChild( this.makeRow( "Personality:" , newPokemon.personality_value ) );
 		//
 		right_table.appendChild( this.makeRow( "Exp Bar:" , 
 			"<progress id='" + this.makeIdUnique( "exp-bar" ) + "' value='" + newPokemon.stats.exp_level + "' max='" + ( newPokemon.stats.exp_next + newPokemon.stats.exp_level ) + "'></progress>"
