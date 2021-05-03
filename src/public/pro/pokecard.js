@@ -511,6 +511,9 @@ class PokeCard {
 		canvas_ev.setAttribute( "class" , "ev-radar-canvas" );
 		canvas_iv.setAttribute( "class" , "iv-radar-canvas" );
 		//
+		var ev_total = newPokemon.EVs.HP + newPokemon.EVs.attack + newPokemon.EVs.defense + newPokemon.EVs.speed + newPokemon.EVs.sp_defense + newPokemon.EVs.sp_attack;
+		canvas_ev.setAttribute( "title" , "EV Total: " + ev_total );
+		//
 		const ev_data = {
 		labels: [
 			'HP',

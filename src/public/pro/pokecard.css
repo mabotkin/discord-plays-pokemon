@@ -149,14 +149,14 @@
 .effect-div {
 	overflow-y: scroll;
 	background-color: #404040;
-	margin-top: 2em;
+	margin-top: 25px;
 	margin-left: 13%;
 	width: 33%;
 	height: 51px;
 	position: absolute;
 	text-align: left;
 	padding: 2px;
-	font-size: small;
+	font-size: x-small;
 }
 .status-div {
 	border: 1px solid #000000;
@@ -241,5 +241,5 @@
 	text-align: left;
 	padding: 2px;
 	margin: 0px;
-	font-size: small;
+	font-size: x-small;
 }
