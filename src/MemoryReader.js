@@ -5,6 +5,7 @@ var locations_index = require('./lookup/locations.js').locations_index;
 var pokemon_types = require('./lookup/pokemon_types.js').pokemon_types;
 var catchrates = require('./lookup/catchrate.js').catchrates;
 var abilities = require('./lookup/abilities.js').abilities;
+var abilities_effects = require('./lookup/abilities_effects.js').abilities_effects;
 var exp_table = require('./lookup/exp.js').exp_table;
 var exp_type = require('./lookup/exptype.js').exptype;
 var moves_effects = require('./lookup/moves_effects.js').moves_effects;
@@ -16,9 +17,17 @@ for ( var i = 0 ; i < moves.length ; i++ ) {
 class MemoryConfig {
     // Stores relevant memory addresses for a particular game
 
-    constructor() {
-        this.partyPokemonAddress = 0x02024284;
-        this.enemyPokemonAddress = 0x0202402C;
+    constructor( format ) {
+		this.disabled = false;
+		if ( format == "FireRed" ) {
+			this.partyPokemonAddress = 0x02024284;
+			this.enemyPokemonAddress = 0x0202402C;
+		} else if ( format == "Emerald" ) {
+			this.partyPokemonAddress = 0x020244EC;
+			this.enemyPokemonAddress = 0x02024744;
+		} else {
+			this.disabled = true;
+		}
     }
 
     // Load a memory config object from a config file
@@ -42,6 +51,7 @@ class MemoryReader {
     // Returns a beegData object containing all relevant information
     getAllData() {
         var beegData = {};
+		if ( this.disabled ) { return {}; }
 
         beegData.partyPokemon = this.getPartyPokemonData( this.memconfig.partyPokemonAddress );
         beegData.enemyPokemon = this.getPartyPokemonData( this.memconfig.enemyPokemonAddress );
@@ -249,6 +259,7 @@ class MemoryReader {
 		pokemon.misc.computed_checksum = computed_checksum % 2**16;
 		if ( abilities[ pokemon.info.pokedex_id ] !== undefined ) {
 			pokemon.info.ability = abilities[ pokemon.info.pokedex_id ][ pokemon.misc.ability_no ];
+			pokemon.info.ability_effect = abilities_effects[ pokemon.info.ability ];
 		}
 	}
 

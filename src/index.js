@@ -29,10 +29,17 @@ var EMOTE_PREFIX = process.env.EMOTE_PREFIX;
 var FRAMERATE = Math.min(Math.max( parseInt( process.env.FRAMERATE ), 1 ), 60 );
 var MAX_REPEAT = parseInt( process.env.MAX_REPEAT );
 var MAX_ACTIONS_QUEUED = parseInt( process.env.MAX_ACTIONS_QUEUED );
+var MEMORY_READER_FORMAT = process.env.MEMORY_READER_FORMAT;
 var PORT = parseInt( process.env.PORT );
 var ACTION_INTERVAL = parseInt( process.env.ACTION_INTERVAL);
 var ROMNAME = process.env.ROM_NAME;
 var SAVE_DIR = process.env.SAVE_DIR;
+
+VALID_MEMORY_READER_FORMATS = [ "" , "FireRed" , "Emerald" ];
+if ( !VALID_MEMORY_READER_FORMATS.includes( MEMORY_READER_FORMAT ) ) {
+	console.log( "Invalid Memory Reader Format" );
+	MEMORY_READER_FORMAT = "";
+}
 
 var current_save_index = parseInt( process.env.SAVE_SLOT_DEFAULT );
 
@@ -122,7 +129,7 @@ function loadRom( save_index ) {
 
 loadRom( current_save_index );
 
-var config = new MemoryConfig();
+var config = new MemoryConfig( MEMORY_READER_FORMAT );
 var mr = new MemoryReader( gba , config );
 var prevGameData = undefined;
 var gameData = undefined;

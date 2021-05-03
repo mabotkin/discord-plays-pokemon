@@ -700,7 +700,10 @@ class PokeCard {
 		table.appendChild( this.makeRow( "Type:" , type ) );
 		table.appendChild( this.makeRow( "Ability:" , newPokemon.info.ability ) );
 		table.appendChild( this.makeRow( "Nature:" , newPokemon.info.nature ) );
-		table.appendChild( this.makeRow( "Experience:" , newPokemon.stats.exp + " (" + newPokemon.stats.exp_level + "/" + ( newPokemon.stats.exp_next + newPokemon.stats.exp_level ) + " to next level)" ) );
+		table.appendChild( this.makeRow( "Exp Bar:" , 
+			"<progress id='" + this.makeIdUnique( "exp-bar" ) + "' value='" + newPokemon.stats.exp_level + "' max='" + ( newPokemon.stats.exp_next + newPokemon.stats.exp_level ) + "'></progress>"
+		) );
+		table.appendChild( this.makeRow( "Total Exp:" , newPokemon.stats.exp + " (" +  newPokemon.stats.exp_level + "/" + ( newPokemon.stats.exp_next + newPokemon.stats.exp_level )+ ")" ) );
 		table.appendChild( this.makeRow( "Exp Type:" , newPokemon.stats.exp_type ) );
 		table.appendChild( this.makeRow( "Met Location:" , newPokemon.misc.met_location_name ) );
 		table.appendChild( this.makeRow( friendship , newPokemon.stats.friendship ) );
