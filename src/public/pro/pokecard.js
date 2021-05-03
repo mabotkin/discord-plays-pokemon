@@ -701,11 +701,11 @@ class PokeCard {
 		//
 		var friendship = "Friendship:";
 		if ( newPokemon.misc.is_egg ) {
-			friendship = "Egg Cycles Remaining:";
+			friendship = "Egg Cycles Left:";
 		}
-		var type = newPokemon.info.type[0];
+		var type = "<img class='move-type' title='" + newPokemon.info.type[0] + "' src='../assets/type/" + newPokemon.info.type[0].toLowerCase() + ".svg'>";
 		if ( newPokemon.info.type.length == 2 ) {
-			type = newPokemon.info.type[0] + " / " + newPokemon.info.type[1];
+			type += ( "<img class='move-type' title='" + newPokemon.info.type[1] + "' src='../assets/type/" + newPokemon.info.type[1].toLowerCase() + ".svg'>" );
 		}
 		left_table.appendChild( this.makeRow( "Type:" , type ) );
 		left_table.appendChild( this.makeRow( "Nature:" , newPokemon.info.nature ) );
