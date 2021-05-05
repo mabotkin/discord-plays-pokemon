@@ -353,7 +353,7 @@ client.on('message', message => {
                     .setDescription('Discord Plays Pokemon allows for users in a Discord channel to send inputs to a GBA emulator, and the output is rendered on a web server.')
                     .addFields(
                         { name: 'GBA Inputs', value: Object.keys( legal_buttons ).join( "\n" ) , inline: true },
-                        { name: 'Commands', value: '--PARTY\n--SAVE\n--LOAD\n--INFO\n--HELP', inline: true },
+                        { name: 'Commands', value: '--PARTY\n--SAVE\n--LOAD\n--INFO\n--EMOTES\n--HELP', inline: true },
                     )
                     .setTimestamp()
                     .setFooter('Made by Alex, Anoop, and David.');
@@ -362,16 +362,20 @@ client.on('message', message => {
             }
 
 			if ( m.startsWith( "--EMOTES" ) ) {
-                var embed = new Discord.MessageEmbed()
-                    .setColor('#ee1515')
-                    .setTitle('Emotes')
-					.setDescription('Emote Prefix: `' + EMOTE_PREFIX + '`\nNote that emotes are case sensitive.')
-                    .addFields(
-                        { name: 'Available Emotes:', value: Object.keys( emotes ).join( "\n" ) , inline: true }
-                    )
-                    .setTimestamp()
+				if ( ALLOW_EMOTES ) {
+					var embed = new Discord.MessageEmbed()
+						.setColor('#ee1515')
+						.setTitle('Emotes')
+						.setDescription('Emote Prefix: `' + EMOTE_PREFIX + '`\nNote that emotes are case sensitive.')
+						.addFields(
+							{ name: 'Available Emotes:', value: Object.keys( emotes ).join( "\n" ) , inline: true }
+						)
+						.setTimestamp()
 
-                message.channel.send( embed );
+					message.channel.send( embed );
+				} else {
+					message.channel.send( "Emotes have been disabled." );
+				}
 			}
 
 		} else if ( message.content.trim().startsWith(EMOTE_PREFIX) ) {

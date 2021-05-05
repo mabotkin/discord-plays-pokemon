@@ -10,7 +10,7 @@ Clone the repository to your desired location, and run
 
 Then, make the directories `roms/` and `saves/`, and place your ROMs in the `roms/` directory.  Then, copy `.env.example` to `.env`, and fill out the entries according to the following section.  Finally, run
 
-```node index.js```
+```node src/index.js```
 
 and view the web interface at the specified port.
 
@@ -44,6 +44,7 @@ Enter any of the valid keypresses to submit that keypress to the emulator.  Vali
 - `--SAVE #` Save the current storage to file, under the specified save slot.
 - `--LOAD` Load a blank save state.
 - `--LOAD #` Load the specified save state.
+- `--EMOTES` List the available emotes.
 
 **WARNING:** For Pokemon games, you must first save within the game, then call `--SAVE` to save the game memory to file.
 
@@ -65,6 +66,6 @@ The following are features that we hope to add in the future:
 - [x] Display deep integration party data on front-end in real time.
 - [x] Make repeated button presses easier (i.e., `A*10`).
 - [x] Add emotes.
-- [ ] Make front-end pretty.
+- [x] Make front-end pretty.
 - [ ] Autosave functionality.
 - [ ] Democracy mode.
