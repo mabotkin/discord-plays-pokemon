@@ -4,10 +4,10 @@ var appDir = path.dirname(require.main.filename);
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
-var io = require('socket.io').listen(http, {
+var io = require('socket.io')(http, {
   pingTimeout: 2000,
   pingInterval: 2000
-});;
+});
 var fs = require('fs');
 var glob = require('glob');
 var Discord = require('discord.js');

@@ -54,7 +54,7 @@ class PokeCard {
 
 		this.update_protocols = {
 			"sprite" : [ (p) => [ p.info.pokedex_id ] , (x) => this.updateSprite(x) ] ,
-			"name" : [ (p) => [ p.info.nickname , p.info.species_name , p.stats.level ] , (x) => this.updateName(x) ] ,
+			"name" : [ (p) => [ p.info.nickname , p.info.type , p.info.species_name , p.stats.level ] , (x) => this.updateName(x) ] ,
 			"color" : [ (p) => [ p.info.pokedex_id ] , (x) => this.updateColor(x) ] ,
 			"hp" : [ (p) => [ p.stats.currentHP , p.stats.totalHP ] , (x) => this.updateHP(x) ] ,
 			"moves" : [ (p) => [ this.moveHash( p.moves ) ] , (x) => this.updateMoves(x) ] ,
@@ -335,7 +335,11 @@ class PokeCard {
 		if ( newPokemon.misc.is_egg ) {
 			egg = " (Egg)";
 		}
-		name.innerHTML = newPokemon.info.nickname + " &#9830;&#9830;&#9830; " + newPokemon.info.species_name + " lvl. " + newPokemon.stats.level + egg;
+		var type = "<img class='pokemon-type' title='" + newPokemon.info.type[0] + "' src='../assets/type/" + newPokemon.info.type[0].toLowerCase() + ".svg'>";
+		if ( newPokemon.info.type.length == 2 ) {
+			type += ( "<img class='pokemon-type' title='" + newPokemon.info.type[1] + "' src='../assets/type/" + newPokemon.info.type[1].toLowerCase() + ".svg'>" );
+		}
+		name.innerHTML = newPokemon.info.nickname + "&nbsp;" + type + "&nbsp;" + newPokemon.info.species_name + " lvl. " + newPokemon.stats.level + egg;
 	}
 
 	updateHP( newPokemon ) {
@@ -694,24 +698,32 @@ class PokeCard {
 		var right_div = document.createElement( "div" );
 		right_div.setAttribute( "id" , this.makeIdUnique( "misc-right-div" ) );
 		right_div.setAttribute( "class" , "misc-right-div" );
+		var bottom_div = document.createElement( "div" );
+		bottom_div.setAttribute( "id" , this.makeIdUnique( "misc-bottom-div" ) );
+		bottom_div.setAttribute( "class" , "misc-bottom-div" );
 		//
 		var left_table = document.createElement( "table" );
-		left_table.setAttribute( "id" , this.makeIdUnique( "misc-left_table" ) );
+		left_table.setAttribute( "id" , this.makeIdUnique( "misc-left-table" ) );
 		left_table.setAttribute( "class" , "misc-table" );
 		var right_table = document.createElement( "table" );
-		right_table.setAttribute( "id" , this.makeIdUnique( "misc-right_table" ) );
+		right_table.setAttribute( "id" , this.makeIdUnique( "misc-right-table" ) );
 		right_table.setAttribute( "class" , "misc-table" );
+		var bottom_table = document.createElement( "table" );
+		bottom_table.setAttribute( "id" , this.makeIdUnique( "misc-bottom-table" ) );
+		bottom_table.setAttribute( "class" , "misc-table" );
 		//
 		var friendship = "Friendship:";
 		if ( newPokemon.misc.is_egg ) {
 			friendship = "Egg Cycles Left:";
 		}
+		/*
 		var type = "<img class='move-type' title='" + newPokemon.info.type[0] + "' src='../assets/type/" + newPokemon.info.type[0].toLowerCase() + ".svg'>";
 		if ( newPokemon.info.type.length == 2 ) {
 			type += ( "<img class='move-type' title='" + newPokemon.info.type[1] + "' src='../assets/type/" + newPokemon.info.type[1].toLowerCase() + ".svg'>" );
 		}
 		left_table.appendChild( this.makeRow( "Type:" , type ) );
-		left_table.appendChild( this.makeRow( "Nature:" , newPokemon.info.nature ) );
+		*/
+		left_table.appendChild( this.makeRow( "Nature:" , "<span title='" + newPokemon.info.nature_desc + "'>" + newPokemon.info.nature + "</span>" ) );
 		left_table.appendChild( this.makeRow( "Met Location:" , newPokemon.misc.met_location_name ) );
 		left_table.appendChild( this.makeRow( friendship , newPokemon.stats.friendship ) );
 		left_table.appendChild( this.makeRow( "Personality:" , newPokemon.personality_value ) );
@@ -722,12 +734,15 @@ class PokeCard {
 		right_table.appendChild( this.makeRow( "Total Exp:" , newPokemon.stats.exp + " (" +  newPokemon.stats.exp_level + "/" + ( newPokemon.stats.exp_next + newPokemon.stats.exp_level )+ ")" ) );
 		right_table.appendChild( this.makeRow( "Exp Type:" , newPokemon.stats.exp_type ) );
 		right_table.appendChild( this.makeRow( "Ability:" , newPokemon.info.ability ) );
-		right_table.appendChild( this.makeRow( "Ability Effect:" , "<div id='" + this.makeIdUnique( "ability-effect" ) + "' class='ability-effect-div'>" + newPokemon.info.ability_effect + "</div>" ) );
+		//
+		bottom_table.appendChild( this.makeRow( "Ability Effect:" , "<div id='" + this.makeIdUnique( "ability-effect" ) + "' class='ability-effect-div'>" + newPokemon.info.ability_effect + "</div>" ) );
 		//
 		left_div.appendChild( left_table );
 		right_div.appendChild( right_table );
+		bottom_div.appendChild( bottom_table );
 		div.appendChild( left_div );
 		div.appendChild( right_div );
+		div.appendChild( bottom_div );
 	}
 
 	makeRow( key , val ) {

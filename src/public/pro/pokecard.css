@@ -133,6 +133,11 @@
 	height: 2em;
 	float: left;
 }
+.pokemon-type {
+	width: 1em;
+	height: 1em;
+	vertical-align: middle;
+}
 .move-pwr-acc-div {
 	width: 15%;
 	height: 55px;
@@ -216,11 +221,16 @@
 }
 .misc-left-div {
 	float: left;
-	margin-left: 10px;
+	width: 49%;
 }
 .misc-right-div {
 	float: right;
-	margin-right: 10px;
+	width: 49%;
+}
+.misc-bottom-div {
+	margin-left: 20px;
+	margin-right: 20px;
+	clear: both;
 }
 .misc-table {
 	margin: auto;
@@ -236,10 +246,9 @@
 .ability-effect-div {
 	overflow-y: scroll;
 	background-color: #404040;
-	width: 150px;
-	height: 51px;
+	height: 70px;
 	text-align: left;
 	padding: 2px;
 	margin: 0px;
-	font-size: x-small;
+	font-size: small;
 }

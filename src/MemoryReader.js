@@ -86,7 +86,9 @@ class MemoryReader {
 		pokemon.stats = {};
 		pokemon.info = {};
 		pokemon.personality_value = this.loadU32( mem , address );
-		pokemon.info.nature = this.natureLookup( pokemon.personality_value % 25 );
+		var nature = this.natureLookup( pokemon.personality_value % 25 );
+		pokemon.info.nature = nature[0];
+		pokemon.info.nature_desc = nature[1];
 		pokemon.OT = {};
 		pokemon.OT.OTID = this.loadU32( mem , address + 4 );
 		var nickname = "";
@@ -336,36 +338,43 @@ class MemoryReader {
 
 	natureLookup( val ) {
 		var natures = {
-			0 : "Hardy",
-			1 : "Lonely",
-			2 : "Brave",
-			3 : "Adamant",
-			4 : "Naughty",
-			5 : "Bold",
-			6 : "Docile",
-			7 : "Relaxed",
-			8 : "Impish",
-			9 : "Lax",
-			10 : "Timid",
-			11 : "Hasty",
-			12 : "Serious",
-			13 : "Jolly",
-			14 : "Naive",
-			15 : "Modest",
-			16 : "Mild",
-			17 : "Quiet",
-			18 : "Bashful",
-			19 : "Rash",
-			20 : "Calm",
-			21 : "Gentle",
-			22 : "Sassy",
-			23 : "Careful",
+			0 : "Hardy" ,
+			1 : "Lonely" ,
+			2 : "Brave" ,
+			3 : "Adamant" ,
+			4 : "Naughty" ,
+			5 : "Bold" ,
+			6 : "Docile" ,
+			7 : "Relaxed" ,
+			8 :  "Impish" ,
+			9 : "Lax" ,
+			10 : "Timid" ,
+			11 : "Hasty" ,
+			12 : "Serious" ,
+			13 : "Jolly" ,
+			14 : "Naive" ,
+			15 : "Modest" ,
+			16 : "Mild" ,
+			17 : "Quiet" ,
+			18 : "Bashful" ,
+			19 : "Rash" ,
+			20 : "Calm" ,
+			21 : "Gentle" ,
+			22 : "Sassy" ,
+			23 : "Careful" ,
 			24 : "Quirky"
 		}
+		var stattable = [ "Attack" , "Defense" , "Speed" , "Sp. Attack" , "Sp. Defense" ]
+		var increase = Math.floor( val / 5 );
+		var decrease = val % 5;
+		var text = "Neutral";
+		if ( increase != decrease ) {
+			text = stattable[ increase ] + " +10%, " + stattable[ decrease ] + " -10%";
+		}
 		if ( val in natures ) {
-			return natures[ val ];
+			return [ natures[ val ] , text ];
 		} else {
-			return "???";
+			return [ "???", "???" ];
 		}
 	}
 
