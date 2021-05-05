@@ -25,7 +25,7 @@
     "glob": "^7.1.6",
     "http": "*",
     "module-alias": "^2.2.2",
-    "socket.io": "^2.4.1"
+    "socket.io": "^4.0.1"
   },
   "_moduleAliases": {
     "@root": ".",
