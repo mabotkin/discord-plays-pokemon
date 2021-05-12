@@ -9,6 +9,8 @@ var abilities_effects = require('./lookup/abilities_effects.js').abilities_effec
 var exp_table = require('./lookup/exp.js').exp_table;
 var exp_type = require('./lookup/exptype.js').exptype;
 var moves_effects = require('./lookup/moves_effects.js').moves_effects;
+var items = require('./lookup/items.js').items;
+var items_effects = require('./lookup/items_effects.js').items_effects;
 // merge moves_effects into moves
 for ( var i = 0 ; i < moves.length ; i++ ) {
 	moves[ i ][ "effect" ] = moves_effects[ i ];
@@ -169,6 +171,8 @@ class MemoryReader {
 				pokemon.info.pokedex_id = pokemon_pokedex[ pokemon.info.species ];
 				pokemon.info.type = pokemon_types[ pokemon.info.pokedex_id ];
 				pokemon.stats.item = ( first_four & 0xffff0000 ) >>> 16;
+				pokemon.stats.item_name = items[ pokemon.stats.item ];
+				pokemon.stats.item_effect = items_effects[ pokemon.stats.item ];
 				pokemon.stats.exp = second_four;
 				//
 				var pp_bonuses = ( third_four & 0x000000ff );
