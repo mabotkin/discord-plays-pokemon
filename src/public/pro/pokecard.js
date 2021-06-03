@@ -768,7 +768,7 @@ class PokeMoveCard {
 
 		this.update_protocols = {
 			"name" : [ (m) => [ m.movedata.name ] , (x) => this.updateName(x) ],
-			"pp" : [ (m) => [ m.pp ] , (x) => this.updatePP(x) ],
+			"pp" : [ (m) => [ m.pp , m.pp_bonus , m.movedata.pp ] , (x) => this.updatePP(x) ],
 			"color" : [ (m) => [ m.movedata.type ] , (x) => this.updateColor(x) ]
 		};
 	}
